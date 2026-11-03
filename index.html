@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Money Trading Journal</title>
+<style>
+:root{--bg:#0e1117;--p:#161b26;--p2:#1e2433;--b:#2a3142;--t:#d6dae3;--m:#8a93a6;--a:#2962ff;--g:#26a69a;--r:#ef5350;--y:#f5b942}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:14px/1.45 -apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b);background:var(--p);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+header h1{font-size:15px;margin:0;font-weight:600}header h1 b{color:var(--a)}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button,.btn{background:var(--p2);color:var(--t);border:1px solid var(--b);border-radius:6px;padding:7px 12px;cursor:pointer;font-size:13px}
+nav button.on{background:var(--a);border-color:var(--a)}
+.btn.pri{background:var(--a);border-color:var(--a)}.btn.g{background:var(--g);border-color:var(--g)}.btn.r{background:transparent;border-color:var(--r);color:var(--r)}
+.btn.dis{opacity:.45}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.prog{height:6px;background:var(--p2);border-radius:3px;overflow:hidden;margin:6px 0 12px}.prog i{display:block;height:100%;background:var(--a);transition:.3s}
+.steps{display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+.steps button{flex:0 0 auto;background:var(--p);border:1px solid var(--b);color:var(--m);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer}
+.steps button.cur{border-color:var(--a);color:#fff}.steps button.ok{color:var(--g)}.steps button.lock{opacity:.4;cursor:not-allowed}
+.card{background:var(--p);border:1px solid var(--b);border-radius:10px;padding:16px;margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:17px}.card h3{margin:14px 0 8px;font-size:13px;color:var(--m);text-transform:uppercase;letter-spacing:.04em}
+.sub{color:var(--m);font-size:13px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--m)}label.f.w{grid-column:1/-1}
+label.f .req{color:var(--r)}
+input,select,textarea{background:var(--bg);color:var(--t);border:1px solid var(--b);border-radius:6px;padding:8px;font:inherit;width:100%}
+textarea{min-height:60px;resize:vertical}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--a)}
+input.miss,select.miss,textarea.miss{border-color:var(--r)}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border:1px solid var(--b);border-radius:6px;margin-bottom:6px;cursor:pointer;background:var(--bg)}
+.chk input{width:18px;height:18px;margin:1px 0 0;flex:0 0 auto;accent-color:var(--a)}
+.chk.on{border-color:#2f4a7a}.tag{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;white-space:nowrap}
+.tag.no{background:#4a1f22;color:#ff8a87}.tag.wait{background:#4a3a14;color:var(--y)}
+.navb{display:flex;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}
+.warn{border-left:3px solid var(--y);background:#2a2414;padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
+.err{border-left:3px solid var(--r);background:#2a1618;padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.kpi{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:10px}.kpi small{color:var(--m);font-size:11px;display:block}.kpi b{font-size:18px}
+.verdict{font-size:28px;font-weight:700;padding:18px;border-radius:10px;text-align:center;letter-spacing:.03em}
+.v-APPROVED{background:#123a35;color:#4fd1c0;border:1px solid var(--g)}.v-WAIT{background:#3a2f12;color:var(--y);border:1px solid var(--y)}.v-NO{background:#3d1719;color:#ff7b78;border:1px solid var(--r)}
+ul.iss{margin:6px 0;padding-left:18px}ul.iss li{margin:3px 0}
+.big .chk{font-size:16px;padding:13px}
+.bigbtn{width:100%;font-size:17px;padding:16px;font-weight:700;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500}
+tr.rw{cursor:pointer}tr.rw:hover{background:var(--p2)}
+.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.p-APPROVED{background:#123a35;color:#4fd1c0}.p-WAIT{background:#3a2f12;color:var(--y)}.p-NO{background:#3d1719;color:#ff7b78}
+.pos{color:var(--g)}.neg{color:var(--r)}
+img.shot{max-width:100%;max-height:320px;border-radius:6px;border:1px solid var(--b);margin-top:6px;display:block}
+.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-start;justify-content:center;padding:20px 10px;overflow:auto;z-index:20}
+.modal .card{max-width:820px;width:100%}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--p2);border:1px solid var(--b);padding:10px 16px;border-radius:8px;z-index:30}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.two{grid-template-columns:1fr}main{padding:10px}.verdict{font-size:22px}}
+.calc{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+.muted{color:var(--m)}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cg .h{color:var(--m);font-size:11px;text-align:center;padding:4px}
+.cd{min-height:64px;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:4px 6px;cursor:pointer;font-size:12px;display:flex;flex-direction:column;justify-content:space-between}
+.cd.e{opacity:.3;cursor:default}.cd.w{background:#123a35;border-color:#1f6b60}.cd.l{background:#3d1719;border-color:#7a2a2c}.cd.t{outline:2px solid var(--a)}.cd.sel{outline:2px solid #fff}
+.cd b{font-size:13px}.cd small{color:var(--m);font-size:10px}@media(max-width:600px){.cd{min-height:48px;font-size:10px;padding:3px}.cd b{font-size:11px}}
+</style>
+</head>
+<body>
+<header><h1><b>SMC</b> Trading Journal</h1>
+<nav id="nav"></nav></header>
+<main id="app"></main>
+<div id="modal"></div>
+<script>
+// ---------- storage ----------
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast('Не удалось сохранить: хранилище переполнено или недоступно');return false}}};
+const DEF_SET={minRR:2,maxRisk:1,requireSweep:true,crit:{}};
+let SET=Object.assign({},DEF_SET,LS.get('smc_set',{}));
+let HIST=LS.get('smc_hist',[]);
+let D=LS.get('smc_draft',null)||newDraft();
+let TAB=LS.get('smc_tab','wizard');
+const TF=['','1m','3m','5m','15m','30m','1H','4H','1D','1W'];
+
+function newDraft(){const n=new Date();return{id:null,step:0,f:{date:n.toISOString().slice(0,10),time:n.toTimeString().slice(0,5),pv:'1',fees:'0'},c:{},fc:{},img:''}}
+const saveDraft=()=>LS.set('smc_draft',D);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isFinite(x)?x:NaN};
+const fx=(v,d=2)=>isFinite(v)?(+v).toFixed(d):'—';
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+// ---------- algorithm config ----------
+const F=(id,t,type='text',req=true,opt)=>({id,t,type,req,opt});
+const C=(id,t,crit=null)=>({id,t,crit});
+const STAGES=[
+{t:'Информация о сделке',d:'Что, где и когда вы собираетесь торговать.',fields:[
+F('date','Дата','date'),F('time','Время','time'),F('symbol','Инструмент (BTC, EUR/USD…)'),
+F('market','Тип рынка','select',true,['','Crypto','Forex','Stocks','Futures']),
+F('session','Торговая сессия','select',true,['','Asia','London','New York']),
+F('dir','Направление сделки','select',true,['','LONG','SHORT']),
+F('tfA','Таймфрейм анализа','select',true,TF),F('tfE','Таймфрейм входа','select',true,TF),
+F('price','Текущая цена','number'),F('img','Скриншот графика','image',false)],checks:[]},
+{t:'Старший таймфрейм',d:'Глобальный контекст рынка.',checks:[
+C('h1','Я определил направление глобального тренда','wait'),C('h2','Я определил последовательность значимых максимумов и минимумов'),
+C('h3','Я определил текущую рыночную структуру','wait'),C('h4','Я отметил основные зоны ликвидности','wait'),
+C('h5','Я определил ближайшие значимые уровни поддержки и сопротивления'),C('h6','Я понимаю, где цена относительно глобального диапазона'),
+C('h7','Я определил Premium или Discount','wait'),C('h8','Я понимаю, куда цена может направиться за ликвидностью','wait')],fields:[
+F('htfTrend','Направление старшего тренда','select',true,['','Бычий','Медвежий','Боковик']),
+F('pd','Цена находится в','select',true,['','Discount','Equilibrium','Premium']),
+F('liqTarget','Ближайшая цель по ликвидности'),
+F('scen','Основной сценарий','textarea'),F('alt','Альтернативный сценарий','textarea')]},
+{t:'Ликвидность',d:'Отсутствие снятия ликвидности — это не подтверждение разворота.',checks:[
+C('l1','Buy Side Liquidity (BSL)'),C('l2','Sell Side Liquidity (SSL)'),C('l3','Equal Highs (EQH)'),C('l4','Equal Lows (EQL)'),
+C('l5','Previous Day High / Low'),C('l6','Локальные максимумы и минимумы'),C('l7','Внутренняя ликвидность'),C('l8','Внешняя ликвидность')],fields:[
+F('q1','1. Где ближайший пул ликвидности?'),F('q2','2. Какую ликвидность цена уже сняла?'),
+F('q3','3. Произошёл ли Liquidity Sweep?','select',true,['','Да','Нет']),
+F('q4','4. Подтверждено ли снятие реакцией цены?','select',true,['','Да','Нет','Не применимо']),
+F('q5','5. Это sweep, а не обычный пробой уровня?','select',true,['','Да, это sweep','Нет, это пробой','Неясно','Снятия не было'])]},
+{t:'Подтверждение структуры',d:'BOS / CHoCH с импульсом, подтверждённый закрытием свечи.',checks:[
+C('s1','После снятия ликвидности появилось сильное движение','wait'),C('s2','Сформировался BOS или CHoCH','wait'),
+C('s3','Есть подтверждение смены локальной структуры'),C('s4','Движение имеет выраженный импульс (Displacement)','wait'),
+C('s5','Понятно, куда направлен Order Flow'),C('s6','Подтверждение соответствует направлению сделки','no')],fields:[
+F('sig','Какой сигнал сформировался','select',true,['','BOS','CHoCH','Нет сигнала']),
+F('sigTf','На каком таймфрейме','select',true,TF),F('lvl','Какой уровень пробит (цена)','number'),
+F('close','Подтверждение закрытием свечи?','select',true,['','Да','Нет'])]},
+{t:'Зона интереса (POI)',d:'Не каждый OB или FVG — качественная зона.',checks:[
+C('p1','Найден потенциальный Order Block'),C('p2','OB сформировался после значимого движения'),
+C('p3','Перед формированием/активацией была работа с ликвидностью'),C('p4','OB связан с изменением структуры'),
+C('p5','Найден Fair Value Gap (FVG)'),C('p6','Есть понятная причина ожидать реакцию в зоне','wait'),
+C('p7','Зона не отработана и не инвалидирована','no')],fields:[
+F('zA','Цена начала зоны','number'),F('zB','Цена окончания зоны','number'),
+F('zType','Тип зоны (сетап)','select',true,['','Order Block','FVG','OB + FVG','Breaker Block','Другое']),
+F('zTf','Таймфрейм зоны','select',true,TF),F('zWhy','Причина выбора зоны','textarea')]},
+{t:'Вход на младшем ТФ',d:'Касание OB/FVG само по себе — не повод для входа.',checks:[
+C('e1','Цена пришла в заранее определённую POI','wait'),C('e2','Получена реакция от зоны интереса','wait'),
+C('e3','Появился локальный Liquidity Sweep (если предусмотрен сетапом)'),C('e4','Появился локальный BOS или CHoCH','wait'),
+C('e5','Сформировался локальный импульс'),C('e6','Обнаружен FVG внутри или рядом с POI'),
+C('e7','Есть конкретная точка входа','wait'),C('e8','Стоп можно поставить за логическим уровнем отмены','no')],fields:[
+F('trig','Точный триггер входа','textarea'),F('ePlan','Цена предполагаемого входа','number'),
+F('conf','Где находится подтверждающий сигнал'),F('inval','Что сделает сценарий недействительным','textarea')]},
+{t:'Риск и прибыль',d:'Авторасчёт. Размер = (денежный риск − издержки) / (|вход − стоп| × стоимость пункта).',calc:true,fields:[
+F('bal','Баланс счёта','number'),F('riskPct','Риск на сделку, %','number'),
+F('entry','Цена входа','number'),F('sl','Stop Loss','number'),F('tp','Take Profit','number'),
+F('pv','Стоимость 1 пункта цены на 1 ед. позиции','number'),F('fees','Комиссия + спред (в деньгах)','number')],checks:[
+C('r1','Стоп за логическим уровнем отмены сценария','no'),C('r2','Take Profit у обоснованной цели ликвидности','wait'),
+C('r3','RR соответствует моим правилам','no'),C('r4','Размер позиции соответствует допустимому риску','no'),
+C('r5','Учтены комиссии и спред','wait'),C('r6','Нет необходимости расширять или переносить стоп','no')]},
+{t:'Фильтры',d:'Рынок и психология.',checks:[
+C('f1','Нет важных новостей, способных нарушить сценарий','wait'),C('f2','Нет сильного встречного импульса','wait'),
+C('f3','Нет очевидного препятствия до Take Profit','wait'),C('f4','Сделка соответствует направлению и контексту рынка','no'),
+C('f5','Я не вхожу из-за страха упустить движение (FOMO)','no'),C('f6','Я не пытаюсь отыграться после убытка','no'),
+C('f7','Я спокоен и принимаю решение рационально','wait'),C('f8','Я готов принять убыток в пределах риска','no'),
+C('f9','Все условия моей торговой модели соблюдены','no')],fields:[
+F('news','Время ближайших важных новостей','datetime-local',false),F('newsNote','Какие новости','text',false)]},
+{t:'Решение',decision:true,fields:[],checks:[]},
+{t:'Финальный чек-лист',final:true,fields:[],checks:[]}];
+const FINAL=['Я понимаю глобальный контекст','Я определил ликвидность','Я понимаю, почему цена должна двигаться в выбранном направлении',
+'Есть подтверждённое снятие ликвидности, если оно предусмотрено сетапом','Есть подтверждение структуры','Есть качественная зона интереса',
+'Есть подтверждение на младшем таймфрейме','Я определил точку входа','Я рассчитал Stop Loss','Я определил Take Profit',
+'Я рассчитал размер позиции','RR соответствует правилам','Риск находится в допустимых пределах','Я психологически готов к сделке'];
+const ALLC=STAGES.flatMap((s,i)=>s.checks.map(c=>({...c,stage:i})));
+const critOf=c=>{if(c.id in SET.crit)return SET.crit[c.id]||null;if(c.id==='s1'&&!SET.requireSweep)return null;return c.crit};
+
+// ---------- logic ----------
+function missingFields(i,d=D){return STAGES[i].fields.filter(f=>f.req&&!String(d.f[f.id]??'').trim())}
+function stageDone(i,d=D){return missingFields(i,d).length===0}
+function maxReach(){let i=0;while(i<STAGES.length-1&&stageDone(i))i++;return i}
+
+function calc(d=D){
+ const f=d.f,bal=num(f.bal),rp=num(f.riskPct),e=num(f.entry),sl=num(f.sl),tp=num(f.tp),pv=num(f.pv)||1,fees=num(f.fees)||0,o={errs:[]};
+ o.money=bal*rp/100;o.dist=Math.abs(e-sl);o.reward=Math.abs(tp-e);
+ if([bal,rp,e,sl,tp].some(x=>!isFinite(x))){o.incomplete=true;return o}
+ if(d.f.dir==='LONG'&&!(sl<e&&e<tp))o.errs.push('Для LONG должно быть: Stop Loss < Вход < Take Profit');
+ if(d.f.dir==='SHORT'&&!(tp<e&&e<sl))o.errs.push('Для SHORT должно быть: Take Profit < Вход < Stop Loss');
+ if(o.dist===0)o.errs.push('Расстояние до стопа равно нулю');
+ o.size=(o.money-fees)/(o.dist*pv);
+ if(!(o.size>0))o.errs.push('Издержки больше допустимого риска — позиция невозможна');
+ o.rr=o.reward/o.dist;
+ o.loss=o.size*o.dist*pv+fees; o.profit=o.size*o.reward*pv-fees; o.netRR=o.profit/o.loss;
+ return o}
+
+function decide(d=D){
+ const iss=[],add=(lvl,text,wait)=>iss.push({lvl,text,wait:wait||text});
+ for(let i=0;i<8;i++){const m=missingFields(i,d);if(m.length)add('wait',`Этап ${i+1}: не заполнено — ${m.map(x=>x.t).join(', ')}`,`Заполнить этап ${i+1}`)}
+ let met=0,total=0;
+ ALLC.forEach(c=>{total++;if(d.c[c.id])met++;else{const k=critOf(c);if(k)add(k,`Этап ${c.stage+1}: «${c.t}»`)}});
+ const f=d.f;
+ if(f.dir==='LONG'&&f.pd==='Premium')add('wait','LONG из Premium-зоны','Дождаться отката цены в Discount');
+ if(f.dir==='SHORT'&&f.pd==='Discount')add('wait','SHORT из Discount-зоны','Дождаться роста цены в Premium');
+ if(SET.requireSweep){
+  if(f.q3&&f.q3!=='Да')add('wait','Liquidity Sweep не произошёл','Дождаться снятия ликвидности');
+  if(f.q3==='Да'&&f.q4!=='Да')add('wait','Снятие ликвидности не подтверждено реакцией цены','Дождаться реакции цены после снятия');}
+ if(f.q5==='Нет, это пробой')add('no','Движение — пробой уровня, а не снятие ликвидности');
+ if(f.q5==='Неясно')add('wait','Неясно: sweep или пробой','Дождаться ясной реакции цены');
+ if(f.sig==='Нет сигнала')add('wait','Нет BOS / CHoCH','Дождаться слома структуры');
+ if(f.close==='Нет')add('wait','Слом структуры не подтверждён закрытием свечи','Дождаться закрытия свечи за уровнем');
+ if(!d.c.p1&&!d.c.p5)add('wait','Не найден ни Order Block, ни FVG','Найти обоснованную зону интереса');
+ const k=calc(d);
+ if(k.incomplete)add('wait','Расчёт риска не заполнен','Заполнить баланс, риск, вход, стоп и тейк');
+ else{k.errs.forEach(e=>add('no',e));
+  if(num(f.riskPct)>SET.maxRisk)add('no',`Риск ${f.riskPct}% превышает лимит ${SET.maxRisk}%`);
+  if(isFinite(k.netRR)&&k.netRR<SET.minRR)add('no',`RR с учётом издержек ${fx(k.netRR)} < минимального ${SET.minRR}`);}
+ const st=iss.some(x=>x.lvl==='no')?'NO':iss.length?'WAIT':'APPROVED';
+ return{st,iss,met,total,calc:k}}
+const ST_LBL={APPROVED:'TRADE APPROVED',WAIT:'WAIT',NO:'NO TRADE'};
+
+// ---------- rendering ----------
+function renderNav(){document.getElementById('nav').innerHTML=[['wizard','Проверка'],['hist','История ('+HIST.length+')'],['cal','Календарь'],['stats','Статистика'],['set','Настройки']]
+ .map(([k,t])=>`<button class="${TAB===k?'on':''}" onclick="go('${k}')">${t}</button>`).join('')}
+function go(t){TAB=t;LS.set('smc_tab',t);render();scrollTo(0,0)}
+function render(){renderNav();const a=document.getElementById('app');
+ a.innerHTML=TAB==='wizard'?wizard():TAB==='hist'?hist():TAB==='stats'?stats():TAB==='cal'?cal():settings();
+ if(TAB==='wizard')refresh()}
+
+function fieldHTML(f,d,prefix='D'){const v=d.f[f.id]??'',r=f.req?' <span class="req">*</span>':'';
+ const h=`oninput="setF('${f.id}',this.value)" onchange="setF('${f.id}',this.value)" data-f="${f.id}"`;
+ if(f.type==='image')return`<label class="f w">${f.t}<input type="file" accept="image/*" onchange="loadImg(this,v=>{D.img=v;saveDraft();render()})">${d.img?`<img class="shot" src="${d.img}"><button class="btn r" style="margin-top:6px;width:auto" onclick="D.img='';saveDraft();render()">Удалить скриншот</button>`:''}</label>`;
+ if(f.type==='select')return`<label class="f">${f.t}${r}<select ${h}>${f.opt.map(o=>`<option ${o===v?'selected':''} value="${esc(o)}">${o||'— выбрать —'}</option>`).join('')}</select></label>`;
+ if(f.type==='textarea')return`<label class="f w">${f.t}${r}<textarea ${h}>${esc(v)}</textarea></label>`;
+ return`<label class="f">${f.t}${r}<input type="${f.type==='number'?'text':f.type}" ${f.type==='number'?'inputmode="decimal"':''} value="${esc(v)}" ${h}></label>`}
+function checkHTML(c,on,fn){const k=critOf(c);return`<label class="chk ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="${fn}"><span>${c.t}${k?`<span class="tag ${k}">${k==='no'?'обязательно':'нужно дождаться'}</span>`:''}</span></label>`}
+
+function wizard(){const s=STAGES[D.step],reach=maxReach();
+ let h=`<div class="sub">${D.id?'Редактирование сохранённой записи · ':''}Этап ${D.step+1} из ${STAGES.length}</div>
+ <div class="prog"><i id="pg"></i></div><div class="steps">${STAGES.map((x,i)=>`<button class="${i===D.step?'cur':''} ${i<D.step&&stageDone(i)?'ok':''} ${i>reach?'lock':''}" onclick="jump(${i})">${i+1}. ${x.t}</button>`).join('')}</div>
+ <div class="card"><h2>${D.step+1}. ${s.t}</h2>${s.d?`<div class="sub">${s.d}</div>`:''}`;
+ if(s.decision)h+=decisionHTML();
+ else if(s.final)h+=finalHTML();
+ else{
+  if(s.checks.length&&D.step!==6)h+=`<h3>Чек-лист</h3>`+s.checks.map(c=>checkHTML(c,D.c[c.id],`D.c['${c.id}']=this.checked;saveDraft();render()`)).join('');
+  if(s.fields.length)h+=`<h3>${D.step===2?'Ответьте на вопросы':'Поля'}</h3><div class="grid">${s.fields.map(f=>fieldHTML(f,D)).join('')}</div>`;
+  if(s.calc)h+=`<div id="calc"></div><h3>Проверка</h3>`+s.checks.map(c=>checkHTML(c,D.c[c.id],`D.c['${c.id}']=this.checked;saveDraft();render()`)).join('');
+  if(D.step===2)h+=`<div class="warn">Если ликвидность не снята — зафиксируйте «Нет». ${SET.requireSweep?'По вашим правилам без sweep результат будет WAIT.':''}</div>`;
+  h+=`<div id="crit"></div>`}
+ h+=`<div class="navb"><div><button class="btn" onclick="jump(${D.step-1})" ${D.step?'':'disabled'}>← Назад</button>
+ <button class="btn r" onclick="resetDraft()">Новая проверка</button></div>
+ ${D.step<STAGES.length-1?`<button class="btn pri" id="nextb" onclick="next()">Далее →</button>`:''}</div>
+ <div class="sub" style="margin-top:8px">Черновик сохраняется автоматически — можно закрыть и продолжить позже.</div></div>`;
+ return h}
+
+function refresh(){ // live UI updates w/o full rerender
+ const s=STAGES[D.step],miss=missingFields(D.step);
+ document.querySelectorAll('[data-f]').forEach(el=>el.classList.toggle('miss',miss.some(m=>m.id===el.dataset.f)));
+ const nb=document.getElementById('nextb');if(nb)nb.classList.toggle('dis',miss.length>0);
+ const pg=document.getElementById('pg');if(pg){let k=0;for(let i=0;i<8;i++)if(stageDone(i))k++;const cc=ALLC.filter(c=>D.c[c.id]).length;pg.style.width=Math.round(((k/8)*.5+(cc/ALLC.length)*.5)*100)+'%'}
+ const cr=document.getElementById('crit');
+ if(cr){const un=s.checks.filter(c=>critOf(c)&&!D.c[c.id]);cr.innerHTML=un.length?`<div class="warn">Не выполнено ключевых условий этапа: ${un.length}. Перейти дальше можно, но сделка не будет одобрена, пока они не выполнены.</div>`:''}
+ const cb=document.getElementById('calc');
+ if(cb){const k=calc(),dd=k.incomplete;
+  cb.innerHTML=`<div class="calc">
+  <div class="kpi"><small>Денежный риск</small><b>${fx(k.money)}</b></div>
+  <div class="kpi"><small>Дистанция до стопа</small><b>${dd?'—':fx(k.dist,5).replace(/\.?0+$/,'')}</b></div>
+  <div class="kpi"><small>Размер позиции</small><b>${dd||!(k.size>0)?'—':fx(k.size,4)}</b></div>
+  <div class="kpi"><small>RR (цена)</small><b>${dd?'—':fx(k.rr)}</b></div>
+  <div class="kpi"><small>RR с издержками</small><b class="${!dd&&k.netRR>=SET.minRR?'pos':'neg'}">${dd?'—':fx(k.netRR)}</b></div>
+  <div class="kpi"><small>Потенц. прибыль / убыток</small><b>${dd?'—':fx(k.profit)+' / '+fx(k.loss)}</b></div></div>
+  ${(k.errs||[]).map(e=>`<div class="err">${e}</div>`).join('')}
+  ${!dd&&num(D.f.riskPct)>SET.maxRisk?`<div class="err">Риск ${D.f.riskPct}% выше вашего лимита ${SET.maxRisk}%</div>`:''}
+  ${!dd&&k.netRR<SET.minRR?`<div class="err">RR ${fx(k.netRR)} ниже минимального ${SET.minRR} (настраивается)</div>`:''}`}}
+
+function setF(id,v){D.f[id]=v;if(id==='ePlan'&&!D.f.entry)D.f.entry=v;saveDraft();refresh()}
+function jump(i){if(i<0)return;const r=maxReach();if(i>r){toast(`Сначала заполните обязательные поля этапа ${r+1}`);D.step=r}else D.step=i;saveDraft();render();scrollTo(0,0)}
+function next(){const m=missingFields(D.step);if(m.length){toast('Заполните: '+m.map(x=>x.t).join(', '));refresh();return}D.step++;saveDraft();render();scrollTo(0,0)}
+function resetDraft(){confirmBox('Начать новую проверку? Текущий черновик будет удалён.',()=>{D=newDraft();saveDraft();render()})}
+
+function decisionHTML(){const r=decide(),fails=ALLC.filter(c=>!D.c[c.id]);
+ const waits=[...new Set(r.iss.filter(x=>x.lvl==='wait').map(x=>x.wait))];
+ const cmt=r.st==='APPROVED'?'Все обязательные условия выполнены. Сделка соответствует торговой модели. Это не гарантия прибыли — только соответствие правилам.'
+ :r.st==='WAIT'?'Сетап не завершён. Не входите, пока не выполнены условия ниже. Касание зоны — не подтверждение.':'Вход запрещён: нарушено критическое правило. Количество других галочек этого не компенсирует.';
+ return`<div class="verdict v-${r.st}">${ST_LBL[r.st]}</div>
+ <div class="kpis" style="margin-top:12px"><div class="kpi"><small>Выполнено условий</small><b class="pos">${r.met}</b></div>
+ <div class="kpi"><small>Не выполнено</small><b class="neg">${r.total-r.met}</b></div><div class="kpi"><small>Блокирующих проблем</small><b>${r.iss.length}</b></div>
+ <div class="kpi"><small>RR / Риск</small><b>${r.calc.incomplete?'—':fx(r.calc.netRR)+' / '+esc(D.f.riskPct)+'%'}</b></div></div>
+ <h3>Комментарий системы</h3><div>${cmt}</div>
+ ${r.iss.filter(x=>x.lvl==='no').length?`<h3>Запрещающие причины</h3><ul class="iss">${r.iss.filter(x=>x.lvl==='no').map(x=>`<li class="neg">${esc(x.text)}</li>`).join('')}</ul>`:''}
+ ${r.iss.filter(x=>x.lvl==='wait').length?`<h3>Не выполнено (ключевое)</h3><ul class="iss">${r.iss.filter(x=>x.lvl==='wait').map(x=>`<li>${esc(x.text)}</li>`).join('')}</ul>`:''}
+ ${waits.length?`<h3>Что нужно дождаться</h3><ul class="iss">${waits.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`:''}
+ ${fails.length?`<details><summary class="muted" style="cursor:pointer;margin-top:10px">Все невыполненные пункты (${fails.length})</summary><ul class="iss">${fails.map(c=>`<li class="muted">Этап ${c.stage+1}: ${esc(c.t)}${critOf(c)?'':' (необязательный)'}</li>`).join('')}</ul></details>`:''}
+ <div class="navb">${r.st!=='APPROVED'?`<button class="btn" onclick="saveRec('${r.st}')">Сохранить сценарий как ${ST_LBL[r.st]}</button>`:'<span></span>'}</div>`}
+
+function finalHTML(){const r=decide(),all=FINAL.every((_,i)=>D.fc[i]),ok=r.st==='APPROVED'&&all;
+ return`${r.st!=='APPROVED'?`<div class="err">Алгоритм выдал <b>${ST_LBL[r.st]}</b>. Кнопка входа заблокирована. Вернитесь к этапу 9, чтобы увидеть причины.</div>`:''}
+ <div class="big">${FINAL.map((t,i)=>`<label class="chk ${D.fc[i]?'on':''}"><input type="checkbox" ${D.fc[i]?'checked':''} onchange="D.fc[${i}]=this.checked;saveDraft();render()"><span>${t}</span></label>`).join('')}</div>
+ <button class="btn bigbtn ${ok?'g':'dis'}" onclick="confirmTrade()">ПОДТВЕРДИТЬ ГОТОВНОСТЬ К СДЕЛКЕ</button><div id="whyno"></div>`}
+function confirmTrade(){const r=decide(),miss=FINAL.filter((_,i)=>!D.fc[i]);
+ if(r.st!=='APPROVED'||miss.length){document.getElementById('whyno').innerHTML=`<div class="err"><b>Входить нельзя.</b><ul class="iss">${r.st!=='APPROVED'?r.iss.slice(0,8).map(x=>`<li>${esc(x.text)}</li>`).join(''):''}${miss.map(t=>`<li>Не отмечено: ${esc(t)}</li>`).join('')}</ul>Сделка без выполнения правил — это импульсивный вход. Дождитесь условий или пропустите сетап.</div>`;return}
+ saveRec('APPROVED')}
+
+function saveRec(st){const r=decide(),k=r.calc,rec=JSON.parse(JSON.stringify(D));
+ Object.assign(rec,{status:st,saved:new Date().toISOString(),issues:r.iss.map(x=>x.text),met:r.met,total:r.total,
+  rr:k.netRR,riskMoney:k.money,size:k.size,post:(D.id&&(HIST.find(h=>h.id===D.id)||{}).post)||{}});
+ delete rec.step;
+ if(D.id){const i=HIST.findIndex(h=>h.id===D.id);if(i>=0)HIST[i]=rec;else HIST.unshift(rec)}else{rec.id=Date.now().toString(36);HIST.unshift(rec)}
+ if(!LS.set('smc_hist',HIST))return;
+ D=newDraft();saveDraft();toast(st==='APPROVED'?'Сделка одобрена и сохранена в историю. После закрытия заполните результат.':'Сценарий сохранён в историю');go('hist')}
+
+// ---------- history ----------
+function hist(){if(!HIST.length)return`<div class="card"><h2>История сделок</h2><div class="sub">Пока пусто. Пройдите проверку во вкладке «Проверка».</div></div>`+ioCard();
+ return`<div class="card"><h2>История сделок</h2><div class="sub">Нажмите на запись, чтобы открыть, дополнить результат или редактировать.</div><div style="overflow-x:auto"><table>
+ <tr><th>Дата</th><th>Инструмент</th><th>Напр.</th><th>Статус</th><th>Entry</th><th>SL</th><th>TP</th><th>RR</th><th>Результат</th><th>План</th></tr>
+ ${HIST.map(h=>{const p=h.post||{};return`<tr class="rw" onclick="openRec('${h.id}')"><td>${esc(h.f.date)} ${esc(h.f.time)}</td><td>${esc(h.f.symbol)}</td><td>${esc(h.f.dir)}</td>
+ <td><span class="pill p-${h.status}">${ST_LBL[h.status]}</span></td><td>${esc(h.f.entry)}</td><td>${esc(h.f.sl)}</td><td>${esc(h.f.tp)}</td><td>${fx(h.rr)}</td>
+ <td class="${num(p.pnl)>0?'pos':num(p.pnl)<0?'neg':''}">${p.pnl!==undefined&&p.pnl!==''?esc(p.pnl)+(isFinite(rOf(h))?` (${fx(rOf(h))}R)`:''):'—'}</td><td>${p.plan==='Да'?'✓':p.plan==='Нет'?'✗':'—'}</td></tr>`}).join('')}
+ </table></div></div>`+ioCard()}
+const rOf=h=>{const p=h.post||{};return num(p.r)||(num(p.pnl)/h.riskMoney)};
+function openRec(id){const h=HIST.find(x=>x.id===id);if(!h)return;const p=h.post||{};
+ const inp=(k,t,type='text')=>`<label class="f">${t}<input ${type==='number'?'inputmode="decimal"':''} value="${esc(p[k]??'')}" oninput="postSet('${id}','${k}',this.value)"></label>`;
+ const fields=STAGES.slice(0,8).flatMap(s=>s.fields).filter(f=>f.type!=='image'&&h.f[f.id]).map(f=>`<div><span class="muted">${f.t}:</span> ${esc(h.f[f.id])}</div>`).join('');
+ const chk=ALLC.map(c=>`<div class="${h.c[c.id]?'pos':'muted'}">${h.c[c.id]?'✓':'✗'} ${esc(c.t)}</div>`).join('');
+ document.getElementById('modal').innerHTML=`<div class="modal" onclick="if(event.target===this)closeM()"><div class="card">
+ <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2>${esc(h.f.symbol)} · ${esc(h.f.dir)} · <span class="pill p-${h.status}">${ST_LBL[h.status]}</span></h2><button class="btn" onclick="closeM()">✕</button></div>
+ <div class="sub">${esc(h.f.date)} ${esc(h.f.time)} · ${esc(h.f.session)} · ${esc(h.f.zType)} · условий ${h.met}/${h.total}</div>
+ <div class="kpis"><div class="kpi"><small>Entry</small><b>${esc(h.f.entry)}</b></div><div class="kpi"><small>Stop Loss</small><b>${esc(h.f.sl)}</b></div>
+ <div class="kpi"><small>Take Profit</small><b>${esc(h.f.tp)}</b></div><div class="kpi"><small>RR</small><b>${fx(h.rr)}</b></div><div class="kpi"><small>Плановый риск</small><b>${fx(h.riskMoney)}</b></div><div class="kpi"><small>Размер</small><b>${fx(h.size,4)}</b></div></div>
+ <h3>Причина входа</h3><div>${esc(h.f.trig||'—')}</div><div class="muted">${esc(h.f.zWhy||'')}</div>
+ ${h.img?`<h3>Скриншот до входа</h3><img class="shot" src="${h.img}">`:''}
+ ${h.issues&&h.issues.length?`<h3>Проблемы на момент проверки</h3><ul class="iss">${h.issues.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}
+ <h3>После сделки</h3><div class="grid">${inp('aEntry','Фактическая цена входа','number')}${inp('aExit','Фактическая цена выхода','number')}
+ <label class="f">Дата выхода<input type="date" value="${esc(p.exitDate||h.f.date||'')}" onchange="postSet('${id}','exitDate',this.value)"></label>${inp('pnl','Финансовый результат (+/−)','number')}<label class="f">Результат в R<input inputmode="decimal" value="${esc(p.r??'')}" placeholder="авто: ${fx(num(p.pnl)/h.riskMoney)}" oninput="postSet('${id}','r',this.value)"></label>
+ <label class="f">Соблюдал ли я план?<select onchange="postSet('${id}','plan',this.value)">${['','Да','Нет'].map(o=>`<option ${p.plan===o?'selected':''}>${o}</option>`).join('')}</select></label>
+ <label class="f w">Какие ошибки допустил?<textarea oninput="postSet('${id}','err',this.value)">${esc(p.err||'')}</textarea></label>
+ <label class="f w">Что улучшить?<textarea oninput="postSet('${id}','imp',this.value)">${esc(p.imp||'')}</textarea></label>
+ <label class="f w">Скриншот после сделки<input type="file" accept="image/*" onchange="loadImg(this,v=>{postSet('${id}','img',v);openRec('${id}')})">${p.img?`<img class="shot" src="${p.img}">`:''}</label></div>
+ <details><summary class="muted" style="cursor:pointer;margin-top:12px">Заполненный чек-лист и анализ</summary><div style="margin-top:8px">${fields}</div><div style="margin-top:8px">${chk}</div></details>
+ <div class="navb"><button class="btn r" onclick="delRec('${id}')">Удалить</button><div><button class="btn" onclick="editRec('${id}')">Редактировать проверку</button> <button class="btn pri" onclick="closeM()">Готово</button></div></div>
+ </div></div>`}
+function postSet(id,k,v){const h=HIST.find(x=>x.id===id);h.post=h.post||{};h.post[k]=v;LS.set('smc_hist',HIST)}
+function closeM(){document.getElementById('modal').innerHTML='';render()}
+function delRec(id){confirmBox('Удалить запись навсегда?',()=>{HIST=HIST.filter(h=>h.id!==id);LS.set('smc_hist',HIST);closeM()})}
+function editRec(id){const h=HIST.find(x=>x.id===id);D=JSON.parse(JSON.stringify(h));D.step=0;D.fc=D.fc||{};saveDraft();document.getElementById('modal').innerHTML='';go('wizard')}
+
+// ---------- stats ----------
+function grp(list){const w=list.filter(h=>num(h.post.pnl)>0),l=list.filter(h=>num(h.post.pnl)<0),gw=w.reduce((a,h)=>a+num(h.post.pnl),0),gl=-l.reduce((a,h)=>a+num(h.post.pnl),0);
+ const rs=list.map(rOf).filter(isFinite);
+ return{n:list.length,w:w.length,l:l.length,wr:list.length?w.length/list.length*100:NaN,tot:gw-gl,pf:gl?gw/gl:(gw?Infinity:NaN),aw:w.length?gw/w.length:NaN,al:l.length?gl/l.length:NaN,
+ rr:list.length?list.reduce((a,h)=>a+(isFinite(h.rr)?h.rr:0),0)/list.length:NaN,exp:rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:NaN}}
+function stats(){const closed=HIST.filter(h=>h.post&&h.post.pnl!==undefined&&h.post.pnl!==''&&isFinite(num(h.post.pnl)));
+ const clean=closed.filter(h=>h.status==='APPROVED'&&h.post.plan==='Да'),dirty=closed.filter(h=>!(h.status==='APPROVED'&&h.post.plan==='Да'));
+ const g=grp(closed),k=(t,v,c='')=>`<div class="kpi"><small>${t}</small><b class="${c}">${v}</b></div>`,sg=v=>v>0?'pos':v<0?'neg':'';
+ const by=key=>{const m={};closed.forEach(h=>{const x=h.f[key]||'—';(m[x]=m[x]||[]).push(h)});
+  return`<table><tr><th></th><th>Сделок</th><th>Win Rate</th><th>Результат</th><th>Ср. R</th></tr>${Object.entries(m).map(([n,l])=>{const s=grp(l);return`<tr><td>${esc(n)}</td><td>${s.n}</td><td>${fx(s.wr,0)}%</td><td class="${sg(s.tot)}">${fx(s.tot)}</td><td>${fx(s.exp)}</td></tr>`}).join('')}</table>`};
+ const cmp=(t,s)=>`<div class="card"><h3 style="margin-top:0">${t}</h3><div class="kpis">${k('Сделок',s.n)}${k('Win Rate',fx(s.wr,0)+'%')}${k('Результат',fx(s.tot),sg(s.tot))}${k('Матожидание, R',fx(s.exp),sg(s.exp))}${k('Profit Factor',fx(s.pf))}</div></div>`;
+ return`<div class="card"><h2>Статистика</h2><div class="sub">Учитываются закрытые сделки (с заполненным финансовым результатом): ${closed.length} из ${HIST.length} записей. Одобрено системой: ${HIST.filter(h=>h.status==='APPROVED').length}, WAIT: ${HIST.filter(h=>h.status==='WAIT').length}, NO TRADE: ${HIST.filter(h=>h.status==='NO').length}.</div>
+ <div class="kpis">${k('Сделок',g.n)}${k('Прибыльных',g.w,'pos')}${k('Убыточных',g.l,'neg')}${k('Win Rate',fx(g.wr,1)+'%')}${k('Средний RR (план)',fx(g.rr))}
+ ${k('Общий результат',fx(g.tot),sg(g.tot))}${k('Profit Factor',fx(g.pf))}${k('Средняя прибыль',fx(g.aw),'pos')}${k('Средний убыток',fx(g.al),'neg')}
+ ${k('Все правила соблюдены',clean.length,'pos')}${k('С нарушениями',dirty.length,'neg')}</div></div>
+ <div class="two">${cmp('✓ Алгоритм выполнен полностью',grp(clean))}${cmp('✗ Алгоритм нарушен',grp(dirty))}</div>
+ <div class="sub">«Выполнен полностью» = система выдала TRADE APPROVED и вы отметили, что соблюдали план. Положительное матожидание в R по этой группе на достаточной выборке (30+ сделок) — признак того, что модель работает.</div>
+ ${closed.length?`<div class="card"><h3 style="margin-top:0">По инструментам</h3>${by('symbol')}<h3>По сессиям</h3>${by('session')}<h3>По типам сетапов</h3>${by('zType')}</div>`:''}`}
+
+// ---------- settings / io ----------
+function settings(){return`<div class="card"><h2>Правила торговой модели</h2><div class="sub">Все правила прозрачны и настраиваемы.</div><div class="grid">
+ <label class="f">Минимальный RR (с учётом издержек)<input inputmode="decimal" value="${SET.minRR}" onchange="SET.minRR=num(this.value)||0;saveSet()"></label>
+ <label class="f">Максимальный риск на сделку, %<input inputmode="decimal" value="${SET.maxRisk}" onchange="SET.maxRisk=num(this.value)||0;saveSet()"></label>
+ <label class="f">Liquidity Sweep обязателен<select onchange="SET.requireSweep=this.value==='1';saveSet()"><option value="1" ${SET.requireSweep?'selected':''}>Да</option><option value="0" ${SET.requireSweep?'':'selected'}>Нет</option></select></label></div>
+ <h3>Важность каждого пункта</h3><div class="sub">«Запрет» → NO TRADE, «Ждать» → WAIT, «Необязательный» — не блокирует вход.</div>
+ ${STAGES.map((s,i)=>s.checks.length?`<div class="muted" style="margin:10px 0 4px">Этап ${i+1}. ${s.t}</div>`+s.checks.map(c=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:4px"><select style="width:160px;flex:0 0 auto" onchange="SET.crit['${c.id}']=this.value;saveSet()">
+ ${[['no','Запрет'],['wait','Ждать'],['','Необязательный']].map(([v,t])=>`<option value="${v}" ${(critOf(c)||'')===v?'selected':''}>${t}</option>`).join('')}</select><span>${c.t}</span></div>`).join(''):'').join('')}
+ <div class="navb"><button class="btn r" onclick="confirmBox('Сбросить правила к стандартным?',()=>{SET=JSON.parse(JSON.stringify(DEF_SET));saveSet()})">Сбросить правила</button></div></div>`+ioCard()}
+function saveSet(){LS.set('smc_set',SET);render();toast('Правила сохранены')}
+function ioCard(){return`<div class="card"><h2>Экспорт / импорт</h2><div class="sub">Данные хранятся только в этом браузере. Регулярно делайте резервную копию.</div>
+ <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" onclick="exp('json')">Экспорт JSON</button><button class="btn" onclick="exp('csv')">Экспорт CSV</button>
+ <label class="btn">Импорт JSON<input type="file" accept=".json,application/json" style="display:none" onchange="imp(this)"></label></div><div id="io"></div></div>`}
+function exp(t){let s;if(t==='json')s=JSON.stringify({settings:SET,history:HIST},null,1);
+ else{const cols=['date','time','symbol','market','session','dir','zType','entry','sl','tp'],q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  s=[[...cols,'status','rr','riskMoney','met','total','actualEntry','actualExit','pnl','R','followedPlan','mistakes','improve'].join(',')]
+  .concat(HIST.map(h=>{const p=h.post||{};return[...cols.map(c=>q(h.f[c])),h.status,fx(h.rr),fx(h.riskMoney),h.met,h.total,q(p.aEntry),q(p.aExit),q(p.pnl),fx(rOf(h)),q(p.plan),q(p.err),q(p.imp)].join(',')})).join('\n')}
+ if(t==='json'&&s.length>400000)s=JSON.stringify({settings:SET,history:HIST});
+ document.getElementById('io').innerHTML=`<div class="sub" style="margin-top:10px">Скопируйте текст и сохраните в файл .${t}${t==='json'?' (скриншоты включены)':''}.</div><textarea id="iot" style="min-height:160px" readonly>${esc(s)}</textarea><button class="btn pri" onclick="copyIO()">Копировать</button>`}
+function copyIO(){const t=document.getElementById('iot');t.select();navigator.clipboard.writeText(t.value).then(()=>toast('Скопировано'),()=>{try{document.execCommand('copy');toast('Скопировано')}catch(e){toast('Выделите текст и скопируйте вручную')}})}
+function imp(inp){const fl=inp.files[0];if(!fl)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!Array.isArray(o.history))throw 0;
+ confirmBox(`Импортировать ${o.history.length} записей? Текущая история будет заменена.`,()=>{HIST=o.history;if(o.settings)SET=Object.assign({},DEF_SET,o.settings);LS.set('smc_hist',HIST);LS.set('smc_set',SET);render();toast('Импортировано')})}catch(e){toast('Неверный файл')}};r.readAsText(fl)}
+
+function loadImg(inp,cb){const fl=inp.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const m=1280,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');
+ c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.72))};im.src=rd.result};rd.readAsDataURL(fl)}
+function confirmBox(msg,yes){const m=document.getElementById('modal');m.innerHTML=`<div class="modal"><div class="card" style="max-width:400px;margin-top:20vh"><div style="margin-bottom:12px">${esc(msg)}</div>
+ <div class="navb"><button class="btn" id="cbn">Отмена</button><button class="btn pri" id="cby">Да</button></div></div></div>`;
+ document.getElementById('cbn').onclick=()=>m.innerHTML='';document.getElementById('cby').onclick=()=>{m.innerHTML='';yes()}}
+// ---------- calendar ----------
+let CM=null,CSEL=null;
+const pnlDate=h=>h.post.exitDate||h.f.date;
+function cal(){const n=new Date();if(!CM)CM=[n.getFullYear(),n.getMonth()];const[y,m]=CM;
+ const closed=HIST.filter(h=>h.post&&isFinite(num(h.post.pnl))&&h.post.pnl!==''),by={};
+ closed.forEach(h=>{const d=pnlDate(h);(by[d]=by[d]||[]).push(h)});
+ const key=d=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,dim=new Date(y,m+1,0).getDate(),off=(new Date(y,m,1).getDay()+6)%7;
+ const today=n.toISOString().slice(0,10);let mt=0,wd=0,ld=0,best=-Infinity,worst=Infinity,mr=0,cells='';
+ for(let i=0;i<off;i++)cells+='<div class="cd e"></div>';
+ for(let d=1;d<=dim;d++){const k=key(d),l=by[k]||[];let v=NaN,r=0;
+  if(l.length){v=l.reduce((a,h)=>a+num(h.post.pnl),0);r=l.map(rOf).filter(isFinite).reduce((a,b)=>a+b,0);mt+=v;mr+=r;v>0?wd++:v<0&&ld++;best=Math.max(best,v);worst=Math.min(worst,v)}
+  cells+=`<div class="cd ${v>0?'w':v<0?'l':''} ${k===today?'t':''} ${k===CSEL?'sel':''}" onclick="CSEL='${k}';render()"><small>${d}</small>${l.length?`<b class="${v>0?'pos':v<0?'neg':''}">${v>0?'+':''}${fx(v)}</b><small>${l.length} сд. · ${fx(r,1)}R</small>`:''}</div>`}
+ const sel=CSEL&&by[CSEL]||[],mn=new Date(y,m,1).toLocaleString('ru',{month:'long',year:'numeric'}),sg=v=>v>0?'pos':v<0?'neg':'';
+ return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px">
+ <button class="btn" onclick="CM=[${m?y:y-1},${m?m-1:11}];render()">←</button><h2 style="text-transform:capitalize">${mn}</h2><button class="btn" onclick="CM=[${m<11?y:y+1},${m<11?m+1:0}];render()">→</button></div>
+ <div class="kpis" style="margin-bottom:12px"><div class="kpi"><small>PnL за месяц</small><b class="${sg(mt)}">${mt>0?'+':''}${fx(mt)}</b></div><div class="kpi"><small>В R</small><b class="${sg(mr)}">${fx(mr,1)}R</b></div>
+ <div class="kpi"><small>Плюсовых / минусовых дней</small><b><span class="pos">${wd}</span> / <span class="neg">${ld}</span></b></div>
+ <div class="kpi"><small>Лучший / худший день</small><b><span class="pos">${wd?fx(best):'—'}</span> / <span class="neg">${ld?fx(worst):'—'}</span></b></div></div>
+ <div class="cg">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="h">${d}</div>`).join('')}${cells}</div>
+ <div class="sub" style="margin-top:8px">Учитываются сделки с заполненным финансовым результатом. День = дата выхода (если указана), иначе дата сделки.</div></div>
+ ${CSEL?`<div class="card"><h3 style="margin-top:0">${CSEL}</h3>${sel.length?`<table>${sel.map(h=>`<tr class="rw" onclick="openRec('${h.id}')"><td>${esc(h.f.symbol)}</td><td>${esc(h.f.dir)}</td><td>${esc(h.f.zType)}</td><td class="${sg(num(h.post.pnl))}">${esc(h.post.pnl)}</td><td>${fx(rOf(h))}R</td><td>${h.post.plan==='Да'?'✓ план':h.post.plan==='Нет'?'✗ нарушение':''}</td></tr>`).join('')}</table>`:'<div class="muted">Закрытых сделок нет.</div>'}</div>`:''}`}
+render();
+</script>
+</body>
+</html>
