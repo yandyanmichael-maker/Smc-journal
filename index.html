@@ -327,6 +327,27 @@ function grp(list){const w=list.filter(h=>num(h.post.pnl)>0),l=list.filter(h=>nu
  const rs=list.map(rOf).filter(isFinite);
  return{n:list.length,w:w.length,l:l.length,wr:list.length?w.length/list.length*100:NaN,tot:gw-gl,pf:gl?gw/gl:(gw?Infinity:NaN),aw:w.length?gw/w.length:NaN,al:l.length?gl/l.length:NaN,
  rr:list.length?list.reduce((a,h)=>a+(isFinite(h.rr)?h.rr:0),0)/list.length:NaN,exp:rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:NaN}}
+
+function equity(closed){
+ const l=[...closed].sort((a,b)=>(pnlDate(a)+a.saved).localeCompare(pnlDate(b)+b.saved));
+ if(!l.length)return`<div class="card"><h3 style="margin-top:0">Прибыль на дистанции</h3><div class="muted">Появится после первой закрытой сделки.</div></div>`;
+ let c=0;const pts=[0,...l.map(h=>c+=num(h.post.pnl))];
+ const W=700,H=220,P=36,mn=Math.min(0,...pts),mx=Math.max(0,...pts),rg=(mx-mn)||1;
+ const X=i=>P+i*(W-P-8)/Math.max(1,pts.length-1),Y=v=>8+(H-8-24)*(1-(v-mn)/rg);
+ const line=pts.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+ const last=pts[pts.length-1],col=last>=0?'var(--g)':'var(--r)';
+ let peak=0,dd=0;pts.forEach(v=>{peak=Math.max(peak,v);dd=Math.max(dd,peak-v)});
+ const dots=pts.slice(1).map((v,i)=>`<circle cx="${X(i+1)}" cy="${Y(v)}" r="3" fill="${col}"><title>Сделка ${i+1}: ${fx(v)}</title></circle>`).join('');
+ return`<div class="card"><h3 style="margin-top:0">Прибыль на дистанции</h3>
+ <div class="kpis" style="margin-bottom:8px"><div class="kpi"><small>Итог</small><b class="${last>=0?'pos':'neg'}">${last>0?'+':''}${fx(last)}</b></div><div class="kpi"><small>Пик</small><b>${fx(Math.max(...pts))}</b></div><div class="kpi"><small>Макс. просадка</small><b class="neg">${fx(-dd)}</b></div></div>
+ <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+ <line x1="${P}" x2="${W-8}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--b)" stroke-dasharray="4 4"/>
+ <text x="${P-6}" y="${Y(mx)+4}" fill="var(--m)" font-size="11" text-anchor="end">${fx(mx,0)}</text>
+ <text x="${P-6}" y="${Y(mn)+4}" fill="var(--m)" font-size="11" text-anchor="end">${fx(mn,0)}</text>
+ <path d="${line} L${X(pts.length-1)},${Y(0)} L${X(0)},${Y(0)} Z" fill="${col}" opacity=".12"/>
+ <path d="${line}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>${dots}
+ <text x="${P}" y="${H-6}" fill="var(--m)" font-size="11">Старт</text><text x="${W-8}" y="${H-6}" fill="var(--m)" font-size="11" text-anchor="end">Сделка ${pts.length-1}</text>
+ </svg></div>`}
 function stats(){const closed=HIST.filter(h=>h.post&&h.post.pnl!==undefined&&h.post.pnl!==''&&isFinite(num(h.post.pnl)));
  const clean=closed.filter(h=>h.status==='APPROVED'&&h.post.plan==='Да'),dirty=closed.filter(h=>!(h.status==='APPROVED'&&h.post.plan==='Да'));
  const g=grp(closed),k=(t,v,c='')=>`<div class="kpi"><small>${t}</small><b class="${c}">${v}</b></div>`,sg=v=>v>0?'pos':v<0?'neg':'';
@@ -336,7 +357,7 @@ function stats(){const closed=HIST.filter(h=>h.post&&h.post.pnl!==undefined&&h.p
  return`<div class="card"><h2>Статистика</h2><div class="sub">Учитываются закрытые сделки (с заполненным финансовым результатом): ${closed.length} из ${HIST.length} записей. Одобрено системой: ${HIST.filter(h=>h.status==='APPROVED').length}, WAIT: ${HIST.filter(h=>h.status==='WAIT').length}, NO TRADE: ${HIST.filter(h=>h.status==='NO').length}.</div>
  <div class="kpis">${k('Сделок',g.n)}${k('Прибыльных',g.w,'pos')}${k('Убыточных',g.l,'neg')}${k('Win Rate',fx(g.wr,1)+'%')}${k('Средний RR (план)',fx(g.rr))}
  ${k('Общий результат',fx(g.tot),sg(g.tot))}${k('Profit Factor',fx(g.pf))}${k('Средняя прибыль',fx(g.aw),'pos')}${k('Средний убыток',fx(g.al),'neg')}
- ${k('Все правила соблюдены',clean.length,'pos')}${k('С нарушениями',dirty.length,'neg')}</div></div>
+ ${k('Все правила соблюдены',clean.length,'pos')}${k('С нарушениями',dirty.length,'neg')}</div></div>${equity(closed)}
  <div class="two">${cmp('✓ Алгоритм выполнен полностью',grp(clean))}${cmp('✗ Алгоритм нарушен',grp(dirty))}</div>
  <div class="sub">«Выполнен полностью» = система выдала TRADE APPROVED и вы отметили, что соблюдали план. Положительное матожидание в R по этой группе на достаточной выборке (30+ сделок) — признак того, что модель работает.</div>
  ${closed.length?`<div class="card"><h3 style="margin-top:0">По инструментам</h3>${by('symbol')}<h3>По сессиям</h3>${by('session')}<h3>По типам сетапов</h3>${by('zType')}</div>`:''}`}
