@@ -198,11 +198,11 @@ function decide(d=D){
 const ST_LBL={APPROVED:'TRADE APPROVED',WAIT:'WAIT',NO:'NO TRADE'};
 
 // ---------- rendering ----------
-function renderNav(){document.getElementById('nav').innerHTML=[['wizard','Проверка'],['hist','История ('+HIST.length+')'],['cal','Календарь'],['stats','Статистика'],['set','Настройки']]
+function renderNav(){document.getElementById('nav').innerHTML=[['wizard','Проверка'],['hist','История ('+HIST.length+')'],['stats','Календарь и статистика'],['set','Настройки']]
  .map(([k,t])=>`<button class="${TAB===k?'on':''}" onclick="go('${k}')">${t}</button>`).join('')}
 function go(t){TAB=t;LS.set('smc_tab',t);render();scrollTo(0,0)}
 function render(){renderNav();const a=document.getElementById('app');
- a.innerHTML=TAB==='wizard'?wizard():TAB==='hist'?hist():TAB==='stats'?stats():TAB==='cal'?cal():settings();
+ a.innerHTML=TAB==='wizard'?wizard():TAB==='hist'?hist():TAB==='stats'?cal()+stats():TAB==='cal'?cal()+stats():settings();
  if(TAB==='wizard')refresh()}
 
 function fieldHTML(f,d,prefix='D'){const v=d.f[f.id]??'',r=f.req?' <span class="req">*</span>':'';
