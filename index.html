@@ -80,6 +80,7 @@ function newDraft(){const n=new Date();return{id:null,step:0,f:{date:n.toISOStri
 const saveDraft=()=>LS.set('smc_draft',D);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isFinite(x)?x:NaN};
+const usd=(v,sign)=>isFinite(v)?(v<0?'-':(sign&&v>0?'+':''))+'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
 const fx=(v,d=2)=>isFinite(v)?(+v).toFixed(d):'—';
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
 
@@ -133,9 +134,9 @@ C('e7','Есть конкретная точка входа','wait'),C('e8','С�
 F('trig','Точный триггер входа','textarea'),F('ePlan','Цена предполагаемого входа','number'),
 F('conf','Где находится подтверждающий сигнал'),F('inval','Что сделает сценарий недействительным','textarea')]},
 {t:'Риск и прибыль',d:'Авторасчёт. Размер = (денежный риск − издержки) / (|вход − стоп| × стоимость пункта).',calc:true,fields:[
-F('bal','Баланс счёта','number'),F('riskPct','Риск на сделку, %','number'),
+F('bal','Баланс счёта, $','number'),F('riskPct','Риск на сделку, %','number'),
 F('entry','Цена входа','number'),F('sl','Stop Loss','number'),F('tp','Take Profit','number'),
-F('pv','Стоимость 1 пункта цены на 1 ед. позиции','number'),F('fees','Комиссия + спред (в деньгах)','number')],checks:[
+F('pv','Стоимость 1 пункта цены на 1 ед. позиции','number'),F('fees','Комиссия + спред, $','number')],checks:[
 C('r1','Стоп за логическим уровнем отмены сценария','no'),C('r2','Take Profit у обоснованной цели ликвидности','wait'),
 C('r3','RR соответствует моим правилам','no'),C('r4','Размер позиции соответствует допустимому риску','no'),
 C('r5','Учтены комиссии и спред','wait'),C('r6','Нет необходимости расширять или переносить стоп','no')]},
@@ -242,12 +243,12 @@ function refresh(){ // live UI updates w/o full rerender
  const cb=document.getElementById('calc');
  if(cb){const k=calc(),dd=k.incomplete;
   cb.innerHTML=`<div class="calc">
-  <div class="kpi"><small>Денежный риск</small><b>${fx(k.money)}</b></div>
+  <div class="kpi"><small>Денежный риск</small><b>${usd(k.money)}</b></div>
   <div class="kpi"><small>Дистанция до стопа</small><b>${dd?'—':fx(k.dist,5).replace(/\.?0+$/,'')}</b></div>
   <div class="kpi"><small>Размер позиции</small><b>${dd||!(k.size>0)?'—':fx(k.size,4)}</b></div>
   <div class="kpi"><small>RR (цена)</small><b>${dd?'—':fx(k.rr)}</b></div>
   <div class="kpi"><small>RR с издержками</small><b class="${!dd&&k.netRR>=SET.minRR?'pos':'neg'}">${dd?'—':fx(k.netRR)}</b></div>
-  <div class="kpi"><small>Потенц. прибыль / убыток</small><b>${dd?'—':fx(k.profit)+' / '+fx(k.loss)}</b></div></div>
+  <div class="kpi"><small>Потенц. прибыль / убыток</small><b>${dd?'—':usd(k.profit)+' / '+usd(k.loss)}</b></div></div>
   ${(k.errs||[]).map(e=>`<div class="err">${e}</div>`).join('')}
   ${!dd&&num(D.f.riskPct)>SET.maxRisk?`<div class="err">Риск ${D.f.riskPct}% выше вашего лимита ${SET.maxRisk}%</div>`:''}
   ${!dd&&k.netRR<SET.minRR?`<div class="err">RR ${fx(k.netRR)} ниже минимального ${SET.minRR} (настраивается)</div>`:''}`}}
@@ -294,7 +295,7 @@ function hist(){if(!HIST.length)return`<div class="card"><h2>История сд
  <tr><th>Дата</th><th>Инструмент</th><th>Напр.</th><th>Статус</th><th>Entry</th><th>SL</th><th>TP</th><th>RR</th><th>Результат</th><th>План</th></tr>
  ${HIST.map(h=>{const p=h.post||{};return`<tr class="rw" onclick="openRec('${h.id}')"><td>${esc(h.f.date)} ${esc(h.f.time)}</td><td>${esc(h.f.symbol)}</td><td>${esc(h.f.dir)}</td>
  <td><span class="pill p-${h.status}">${ST_LBL[h.status]}</span></td><td>${esc(h.f.entry)}</td><td>${esc(h.f.sl)}</td><td>${esc(h.f.tp)}</td><td>${fx(h.rr)}</td>
- <td class="${num(p.pnl)>0?'pos':num(p.pnl)<0?'neg':''}">${p.pnl!==undefined&&p.pnl!==''?esc(p.pnl)+(isFinite(rOf(h))?` (${fx(rOf(h))}R)`:''):'—'}</td><td>${p.plan==='Да'?'✓':p.plan==='Нет'?'✗':'—'}</td></tr>`}).join('')}
+ <td class="${num(p.pnl)>0?'pos':num(p.pnl)<0?'neg':''}">${p.pnl!==undefined&&p.pnl!==''?usd(num(p.pnl),1)+(isFinite(rOf(h))?` (${fx(rOf(h))}R)`:''):'—'}</td><td>${p.plan==='Да'?'✓':p.plan==='Нет'?'✗':'—'}</td></tr>`}).join('')}
  </table></div></div>`+ioCard()}
 const rOf=h=>{const p=h.post||{};return num(p.r)||(num(p.pnl)/h.riskMoney)};
 function openRec(id){const h=HIST.find(x=>x.id===id);if(!h)return;const p=h.post||{};
@@ -305,12 +306,12 @@ function openRec(id){const h=HIST.find(x=>x.id===id);if(!h)return;const p=h.post
  <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2>${esc(h.f.symbol)} · ${esc(h.f.dir)} · <span class="pill p-${h.status}">${ST_LBL[h.status]}</span></h2><button class="btn" onclick="closeM()">✕</button></div>
  <div class="sub">${esc(h.f.date)} ${esc(h.f.time)} · ${esc(h.f.session)} · ${esc(h.f.zType)} · условий ${h.met}/${h.total}</div>
  <div class="kpis"><div class="kpi"><small>Entry</small><b>${esc(h.f.entry)}</b></div><div class="kpi"><small>Stop Loss</small><b>${esc(h.f.sl)}</b></div>
- <div class="kpi"><small>Take Profit</small><b>${esc(h.f.tp)}</b></div><div class="kpi"><small>RR</small><b>${fx(h.rr)}</b></div><div class="kpi"><small>Плановый риск</small><b>${fx(h.riskMoney)}</b></div><div class="kpi"><small>Размер</small><b>${fx(h.size,4)}</b></div></div>
+ <div class="kpi"><small>Take Profit</small><b>${esc(h.f.tp)}</b></div><div class="kpi"><small>RR</small><b>${fx(h.rr)}</b></div><div class="kpi"><small>Плановый риск</small><b>${usd(h.riskMoney)}</b></div><div class="kpi"><small>Размер</small><b>${fx(h.size,4)}</b></div></div>
  <h3>Причина входа</h3><div>${esc(h.f.trig||'—')}</div><div class="muted">${esc(h.f.zWhy||'')}</div>
  ${h.img?`<h3>Скриншот до входа</h3><img class="shot" src="${h.img}">`:''}
  ${h.issues&&h.issues.length?`<h3>Проблемы на момент проверки</h3><ul class="iss">${h.issues.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}
  <h3>После сделки</h3><div class="grid">${inp('aEntry','Фактическая цена входа','number')}${inp('aExit','Фактическая цена выхода','number')}
- <label class="f">Дата выхода<input type="date" value="${esc(p.exitDate||h.f.date||'')}" onchange="postSet('${id}','exitDate',this.value)"></label>${inp('pnl','Финансовый результат (+/−)','number')}<label class="f">Результат в R<input inputmode="decimal" value="${esc(p.r??'')}" placeholder="авто: ${fx(num(p.pnl)/h.riskMoney)}" oninput="postSet('${id}','r',this.value)"></label>
+ <label class="f">Дата выхода<input type="date" value="${esc(p.exitDate||h.f.date||'')}" onchange="postSet('${id}','exitDate',this.value)"></label>${inp('pnl','Финансовый результат, $ (+/−)','number')}<label class="f">Результат в R<input inputmode="decimal" value="${esc(p.r??'')}" placeholder="авто: ${fx(num(p.pnl)/h.riskMoney)}" oninput="postSet('${id}','r',this.value)"></label>
  <label class="f">Соблюдал ли я план?<select onchange="postSet('${id}','plan',this.value)">${['','Да','Нет'].map(o=>`<option ${p.plan===o?'selected':''}>${o}</option>`).join('')}</select></label>
  <label class="f w">Какие ошибки допустил?<textarea oninput="postSet('${id}','err',this.value)">${esc(p.err||'')}</textarea></label>
  <label class="f w">Что улучшить?<textarea oninput="postSet('${id}','imp',this.value)">${esc(p.imp||'')}</textarea></label>
@@ -338,13 +339,13 @@ function equity(closed){
  const line=pts.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
  const last=pts[pts.length-1],col=last>=0?'var(--g)':'var(--r)';
  let peak=0,dd=0;pts.forEach(v=>{peak=Math.max(peak,v);dd=Math.max(dd,peak-v)});
- const dots=pts.slice(1).map((v,i)=>`<circle cx="${X(i+1)}" cy="${Y(v)}" r="3" fill="${col}"><title>Сделка ${i+1}: ${fx(v)}</title></circle>`).join('');
+ const dots=pts.slice(1).map((v,i)=>`<circle cx="${X(i+1)}" cy="${Y(v)}" r="3" fill="${col}"><title>Сделка ${i+1}: ${usd(v,1)}</title></circle>`).join('');
  return`<div class="card"><h3 style="margin-top:0">Прибыль на дистанции</h3>
- <div class="kpis" style="margin-bottom:8px"><div class="kpi"><small>Итог</small><b class="${last>=0?'pos':'neg'}">${last>0?'+':''}${fx(last)}</b></div><div class="kpi"><small>Пик</small><b>${fx(Math.max(...pts))}</b></div><div class="kpi"><small>Макс. просадка</small><b class="neg">${fx(-dd)}</b></div></div>
+ <div class="kpis" style="margin-bottom:8px"><div class="kpi"><small>Итог</small><b class="${last>=0?'pos':'neg'}">${usd(last,1)}</b></div><div class="kpi"><small>Пик</small><b>${usd(Math.max(...pts))}</b></div><div class="kpi"><small>Макс. просадка</small><b class="neg">${usd(-dd)}</b></div></div>
  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
  <line x1="${P}" x2="${W-8}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--b)" stroke-dasharray="4 4"/>
- <text x="${P-6}" y="${Y(mx)+4}" fill="var(--m)" font-size="11" text-anchor="end">${fx(mx,0)}</text>
- <text x="${P-6}" y="${Y(mn)+4}" fill="var(--m)" font-size="11" text-anchor="end">${fx(mn,0)}</text>
+ <text x="${P-6}" y="${Y(mx)+4}" fill="var(--m)" font-size="11" text-anchor="end">$${fx(mx,0)}</text>
+ <text x="${P-6}" y="${Y(mn)+4}" fill="var(--m)" font-size="11" text-anchor="end">$${fx(mn,0)}</text>
  <path d="${line} L${X(pts.length-1)},${Y(0)} L${X(0)},${Y(0)} Z" fill="${col}" opacity=".12"/>
  <path d="${line}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>${dots}
  <text x="${P}" y="${H-6}" fill="var(--m)" font-size="11">Старт</text><text x="${W-8}" y="${H-6}" fill="var(--m)" font-size="11" text-anchor="end">Сделка ${pts.length-1}</text>
@@ -353,11 +354,11 @@ function stats(){const closed=HIST.filter(h=>h.post&&h.post.pnl!==undefined&&h.p
  const clean=closed.filter(h=>h.status==='APPROVED'&&h.post.plan==='Да'),dirty=closed.filter(h=>!(h.status==='APPROVED'&&h.post.plan==='Да'));
  const g=grp(closed),k=(t,v,c='')=>`<div class="kpi"><small>${t}</small><b class="${c}">${v}</b></div>`,sg=v=>v>0?'pos':v<0?'neg':'';
  const by=key=>{const m={};closed.forEach(h=>{const x=h.f[key]||'—';(m[x]=m[x]||[]).push(h)});
-  return`<table><tr><th></th><th>Сделок</th><th>Win Rate</th><th>Результат</th><th>Ср. R</th></tr>${Object.entries(m).map(([n,l])=>{const s=grp(l);return`<tr><td>${esc(n)}</td><td>${s.n}</td><td>${fx(s.wr,0)}%</td><td class="${sg(s.tot)}">${fx(s.tot)}</td><td>${fx(s.exp)}</td></tr>`}).join('')}</table>`};
- const cmp=(t,s)=>`<div class="card"><h3 style="margin-top:0">${t}</h3><div class="kpis">${k('Сделок',s.n)}${k('Win Rate',fx(s.wr,0)+'%')}${k('Результат',fx(s.tot),sg(s.tot))}${k('Матожидание, R',fx(s.exp),sg(s.exp))}${k('Profit Factor',fx(s.pf))}</div></div>`;
+  return`<table><tr><th></th><th>Сделок</th><th>Win Rate</th><th>Результат</th><th>Ср. R</th></tr>${Object.entries(m).map(([n,l])=>{const s=grp(l);return`<tr><td>${esc(n)}</td><td>${s.n}</td><td>${fx(s.wr,0)}%</td><td class="${sg(s.tot)}">${usd(s.tot,1)}</td><td>${fx(s.exp)}</td></tr>`}).join('')}</table>`};
+ const cmp=(t,s)=>`<div class="card"><h3 style="margin-top:0">${t}</h3><div class="kpis">${k('Сделок',s.n)}${k('Win Rate',fx(s.wr,0)+'%')}${k('Результат',usd(s.tot,1),sg(s.tot))}${k('Матожидание, R',fx(s.exp),sg(s.exp))}${k('Profit Factor',fx(s.pf))}</div></div>`;
  return`<div class="card"><h2>Статистика</h2><div class="sub">Учитываются закрытые сделки (с заполненным финансовым результатом): ${closed.length} из ${HIST.length} записей. Одобрено системой: ${HIST.filter(h=>h.status==='APPROVED').length}, WAIT: ${HIST.filter(h=>h.status==='WAIT').length}, NO TRADE: ${HIST.filter(h=>h.status==='NO').length}.</div>
  <div class="kpis">${k('Сделок',g.n)}${k('Прибыльных',g.w,'pos')}${k('Убыточных',g.l,'neg')}${k('Win Rate',fx(g.wr,1)+'%')}${k('Средний RR (план)',fx(g.rr))}
- ${k('Общий результат',fx(g.tot),sg(g.tot))}${k('Profit Factor',fx(g.pf))}${k('Средняя прибыль',fx(g.aw),'pos')}${k('Средний убыток',fx(g.al),'neg')}
+ ${k('Общий результат',usd(g.tot,1),sg(g.tot))}${k('Profit Factor',fx(g.pf))}${k('Средняя прибыль',usd(g.aw),'pos')}${k('Средний убыток',usd(-g.al),'neg')}
  ${k('Все правила соблюдены',clean.length,'pos')}${k('С нарушениями',dirty.length,'neg')}</div></div>${equity(closed)}
  <div class="two">${cmp('✓ Алгоритм выполнен полностью',grp(clean))}${cmp('✗ Алгоритм нарушен',grp(dirty))}</div>
  <div class="sub">«Выполнен полностью» = система выдала TRADE APPROVED и вы отметили, что соблюдали план. Положительное матожидание в R по этой группе на достаточной выборке (30+ сделок) — признак того, что модель работает.</div>
@@ -402,16 +403,16 @@ function cal(){const n=new Date();if(!CM)CM=[n.getFullYear(),n.getMonth()];const
  for(let i=0;i<off;i++)cells+='<div class="cd e"></div>';
  for(let d=1;d<=dim;d++){const k=key(d),l=by[k]||[];let v=NaN,r=0;
   if(l.length){v=l.reduce((a,h)=>a+num(h.post.pnl),0);r=l.map(rOf).filter(isFinite).reduce((a,b)=>a+b,0);mt+=v;mr+=r;v>0?wd++:v<0&&ld++;best=Math.max(best,v);worst=Math.min(worst,v)}
-  cells+=`<div class="cd ${v>0?'w':v<0?'l':''} ${k===today?'t':''} ${k===CSEL?'sel':''}" onclick="CSEL='${k}';render()"><small>${d}</small>${l.length?`<b class="${v>0?'pos':v<0?'neg':''}">${v>0?'+':''}${fx(v)}</b><small>${l.length} сд. · ${fx(r,1)}R</small>`:''}</div>`}
+  cells+=`<div class="cd ${v>0?'w':v<0?'l':''} ${k===today?'t':''} ${k===CSEL?'sel':''}" onclick="CSEL='${k}';render()"><small>${d}</small>${l.length?`<b class="${v>0?'pos':v<0?'neg':''}">${usd(v,1)}</b><small>${l.length} сд. · ${fx(r,1)}R</small>`:''}</div>`}
  const sel=CSEL&&by[CSEL]||[],mn=new Date(y,m,1).toLocaleString('ru',{month:'long',year:'numeric'}),sg=v=>v>0?'pos':v<0?'neg':'';
  return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px">
  <button class="btn" onclick="CM=[${m?y:y-1},${m?m-1:11}];render()">←</button><h2 style="text-transform:capitalize">${mn}</h2><button class="btn" onclick="CM=[${m<11?y:y+1},${m<11?m+1:0}];render()">→</button></div>
- <div class="kpis" style="margin-bottom:12px"><div class="kpi"><small>PnL за месяц</small><b class="${sg(mt)}">${mt>0?'+':''}${fx(mt)}</b></div><div class="kpi"><small>В R</small><b class="${sg(mr)}">${fx(mr,1)}R</b></div>
+ <div class="kpis" style="margin-bottom:12px"><div class="kpi"><small>PnL за месяц</small><b class="${sg(mt)}">${usd(mt,1)}</b></div><div class="kpi"><small>В R</small><b class="${sg(mr)}">${fx(mr,1)}R</b></div>
  <div class="kpi"><small>Плюсовых / минусовых дней</small><b><span class="pos">${wd}</span> / <span class="neg">${ld}</span></b></div>
- <div class="kpi"><small>Лучший / худший день</small><b><span class="pos">${wd?fx(best):'—'}</span> / <span class="neg">${ld?fx(worst):'—'}</span></b></div></div>
+ <div class="kpi"><small>Лучший / худший день</small><b><span class="pos">${wd?usd(best,1):'—'}</span> / <span class="neg">${ld?usd(worst,1):'—'}</span></b></div></div>
  <div class="cg">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="h">${d}</div>`).join('')}${cells}</div>
  <div class="sub" style="margin-top:8px">Учитываются сделки с заполненным финансовым результатом. День = дата выхода (если указана), иначе дата сделки.</div></div>
- ${CSEL?`<div class="card"><h3 style="margin-top:0">${CSEL}</h3>${sel.length?`<table>${sel.map(h=>`<tr class="rw" onclick="openRec('${h.id}')"><td>${esc(h.f.symbol)}</td><td>${esc(h.f.dir)}</td><td>${esc(h.f.zType)}</td><td class="${sg(num(h.post.pnl))}">${esc(h.post.pnl)}</td><td>${fx(rOf(h))}R</td><td>${h.post.plan==='Да'?'✓ план':h.post.plan==='Нет'?'✗ нарушение':''}</td></tr>`).join('')}</table>`:'<div class="muted">Закрытых сделок нет.</div>'}</div>`:''}`}
+ ${CSEL?`<div class="card"><h3 style="margin-top:0">${CSEL}</h3>${sel.length?`<table>${sel.map(h=>`<tr class="rw" onclick="openRec('${h.id}')"><td>${esc(h.f.symbol)}</td><td>${esc(h.f.dir)}</td><td>${esc(h.f.zType)}</td><td class="${sg(num(h.post.pnl))}">${usd(num(h.post.pnl),1)}</td><td>${fx(rOf(h))}R</td><td>${h.post.plan==='Да'?'✓ план':h.post.plan==='Нет'?'✗ нарушение':''}</td></tr>`).join('')}</table>`:'<div class="muted">Закрытых сделок нет.</div>'}</div>`:''}`}
 render();
 </script>
 </body>
