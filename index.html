@@ -3,48 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Smart Money Trading Journal</title>
+<title>Trading Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0e1117;--p:#161b26;--p2:#1e2433;--b:#2a3142;--t:#d6dae3;--m:#8a93a6;--a:#2962ff;--g:#26a69a;--r:#ef5350;--y:#f5b942}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:14px/1.45 -apple-system,Segoe UI,Roboto,sans-serif}
-header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b);background:var(--p);position:sticky;top:0;z-index:5;flex-wrap:wrap}
-header h1{font-size:15px;margin:0;font-weight:600}header h1 b{color:var(--a)}
+:root{--bg:#0c0e13;--p:#14171f;--p2:#1b1f2a;--b:#252a37;--t:#e8eaf0;--m:#8b92a5;--a:#8b7cf6;--g:#4cc9a0;--r:#f07a85;--y:#f0c674}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:14px/1.5 Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(1200px 600px at 10% -10%,#1c1835 0%,transparent 60%),var(--bg);background-attachment:fixed}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b);background:rgba(20,23,31,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:-.01em}header h1 b{background:linear-gradient(90deg,#8b7cf6,#4cc9a0);-webkit-background-clip:text;background-clip:text;color:transparent}
 nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
-nav button,.btn{background:var(--p2);color:var(--t);border:1px solid var(--b);border-radius:6px;padding:7px 12px;cursor:pointer;font-size:13px}
-nav button.on{background:var(--a);border-color:var(--a)}
-.btn.pri{background:var(--a);border-color:var(--a)}.btn.g{background:var(--g);border-color:var(--g)}.btn.r{background:transparent;border-color:var(--r);color:var(--r)}
+nav button,.btn{background:var(--p2);color:var(--t);border:1px solid var(--b);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:inherit;transition:.15s}nav button:hover,.btn:hover{border-color:var(--a)}
+nav button.on{background:var(--a);border-color:var(--a);color:#fff}
+.btn.pri{background:var(--a);border-color:var(--a);color:#fff}.btn.g{background:var(--g);border-color:var(--g)}.btn.r{background:transparent;border-color:var(--r);color:var(--r)}
 .btn.dis{opacity:.45}
 main{max-width:1100px;margin:0 auto;padding:16px}
-.prog{height:6px;background:var(--p2);border-radius:3px;overflow:hidden;margin:6px 0 12px}.prog i{display:block;height:100%;background:var(--a);transition:.3s}
+.prog{height:6px;background:var(--p2);border-radius:3px;overflow:hidden;margin:6px 0 12px}.prog i{display:block;height:100%;background:linear-gradient(90deg,#8b7cf6,#4cc9a0);transition:.3s}
 .steps{display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
-.steps button{flex:0 0 auto;background:var(--p);border:1px solid var(--b);color:var(--m);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer}
+.steps button{flex:0 0 auto;background:var(--p);border:1px solid var(--b);color:var(--m);border-radius:999px;font-family:inherit;padding:6px 10px;font-size:12px;cursor:pointer}
 .steps button.cur{border-color:var(--a);color:#fff}.steps button.ok{color:var(--g)}.steps button.lock{opacity:.4;cursor:not-allowed}
-.card{background:var(--p);border:1px solid var(--b);border-radius:10px;padding:16px;margin-bottom:14px}
+.card{background:var(--p);border:1px solid var(--b);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:16px;margin-bottom:14px}
 .card h2{margin:0 0 4px;font-size:17px}.card h3{margin:14px 0 8px;font-size:13px;color:var(--m);text-transform:uppercase;letter-spacing:.04em}
 .sub{color:var(--m);font-size:13px;margin-bottom:10px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--m)}label.f.w{grid-column:1/-1}
 label.f .req{color:var(--r)}
-input,select,textarea{background:var(--bg);color:var(--t);border:1px solid var(--b);border-radius:6px;padding:8px;font:inherit;width:100%}
+input,select,textarea{background:var(--bg);color:var(--t);border:1px solid var(--b);border-radius:10px;padding:9px 10px;font:inherit;width:100%}
 textarea{min-height:60px;resize:vertical}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--a)}
 input.miss,select.miss,textarea.miss{border-color:var(--r)}
 .chk{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border:1px solid var(--b);border-radius:6px;margin-bottom:6px;cursor:pointer;background:var(--bg)}
 .chk input{width:18px;height:18px;margin:1px 0 0;flex:0 0 auto;accent-color:var(--a)}
-.chk.on{border-color:#2f4a7a}.tag{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;white-space:nowrap}
-.tag.no{background:#4a1f22;color:#ff8a87}.tag.wait{background:#4a3a14;color:var(--y)}
+.chk.on{border-color:#4b3f9e;background:#17152a}.tag{font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;white-space:nowrap}
+.tag.no{background:#3a1e26;color:var(--r)}.tag.wait{background:#3a3020;color:var(--y)}
 .navb{display:flex;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}
-.warn{border-left:3px solid var(--y);background:#2a2414;padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
-.err{border-left:3px solid var(--r);background:#2a1618;padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
+.warn{border-left:3px solid var(--y);background:#211d14;padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
+.err{border-left:3px solid var(--r);background:#24161b;padding:8px 12px;border-radius:4px;margin:8px 0;font-size:13px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.kpi{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:10px}.kpi small{color:var(--m);font-size:11px;display:block}.kpi b{font-size:18px}
+.kpi{background:var(--p2);border:1px solid var(--b);border-radius:12px;padding:10px}.kpi small{color:var(--m);font-size:11px;display:block}.kpi b{font-size:18px}
 .verdict{font-size:28px;font-weight:700;padding:18px;border-radius:10px;text-align:center;letter-spacing:.03em}
-.v-APPROVED{background:#123a35;color:#4fd1c0;border:1px solid var(--g)}.v-WAIT{background:#3a2f12;color:var(--y);border:1px solid var(--y)}.v-NO{background:#3d1719;color:#ff7b78;border:1px solid var(--r)}
+.v-APPROVED{background:linear-gradient(135deg,#123129,#14171f);color:var(--g);border:1px solid var(--g)}.v-WAIT{background:linear-gradient(135deg,#2e2716,#14171f);color:var(--y);border:1px solid var(--y)}.v-NO{background:linear-gradient(135deg,#33181f,#14171f);color:var(--r);border:1px solid var(--r)}
 ul.iss{margin:6px 0;padding-left:18px}ul.iss li{margin:3px 0}
 .big .chk{font-size:16px;padding:13px}
 .bigbtn{width:100%;font-size:17px;padding:16px;font-weight:700;margin-top:10px}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500}
 tr.rw{cursor:pointer}tr.rw:hover{background:var(--p2)}
-.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.p-APPROVED{background:#123a35;color:#4fd1c0}.p-WAIT{background:#3a2f12;color:var(--y)}.p-NO{background:#3d1719;color:#ff7b78}
+.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.p-APPROVED{background:#123129;color:var(--g)}.p-WAIT{background:#2e2716;color:var(--y)}.p-NO{background:#33181f;color:var(--r)}
 .pos{color:var(--g)}.neg{color:var(--r)}
 img.shot{max-width:100%;max-height:320px;border-radius:6px;border:1px solid var(--b);margin-top:6px;display:block}
 .modal{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-start;justify-content:center;padding:20px 10px;overflow:auto;z-index:20}
@@ -55,12 +56,12 @@ img.shot{max-width:100%;max-height:320px;border-radius:6px;border:1px solid var(
 .muted{color:var(--m)}
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cg .h{color:var(--m);font-size:11px;text-align:center;padding:4px}
 .cd{min-height:64px;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:4px 6px;cursor:pointer;font-size:12px;display:flex;flex-direction:column;justify-content:space-between}
-.cd.e{opacity:.3;cursor:default}.cd.w{background:#123a35;border-color:#1f6b60}.cd.l{background:#3d1719;border-color:#7a2a2c}.cd.t{outline:2px solid var(--a)}.cd.sel{outline:2px solid #fff}
+.cd.e{opacity:.3;cursor:default}.cd.w{background:#122a24;border-color:#2b6b58}.cd.l{background:#2c161c;border-color:#6e2f3a}.cd.t{outline:2px solid var(--a)}.cd.sel{outline:2px solid #fff}
 .cd b{font-size:13px}.cd small{color:var(--m);font-size:10px}@media(max-width:600px){.cd{min-height:48px;font-size:10px;padding:3px}.cd b{font-size:11px}}
 </style>
 </head>
 <body>
-<header><h1><b>SMC</b> Trading Journal</h1>
+<header><h1>Trading <b>Journal</b></h1>
 <nav id="nav"></nav></header>
 <main id="app"></main>
 <div id="modal"></div>
@@ -208,9 +209,9 @@ function render(){renderNav();const a=document.getElementById('app');
 function fieldHTML(f,d,prefix='D'){const v=d.f[f.id]??'',r=f.req?' <span class="req">*</span>':'';
  const h=`oninput="setF('${f.id}',this.value)" onchange="setF('${f.id}',this.value)" data-f="${f.id}"`;
  if(f.type==='image')return`<label class="f w">${f.t}<input type="file" accept="image/*" onchange="loadImg(this,v=>{D.img=v;saveDraft();render()})">${d.img?`<img class="shot" src="${d.img}"><button class="btn r" style="margin-top:6px;width:auto" onclick="D.img='';saveDraft();render()">Удалить скриншот</button>`:''}</label>`;
- if(f.type==='select')return`<label class="f">${f.t}${r}<select ${h}>${f.opt.map(o=>`<option ${o===v?'selected':''} value="${esc(o)}">${o||'— выбрать —'}</option>`).join('')}</select></label>`;
- if(f.type==='textarea')return`<label class="f w">${f.t}${r}<textarea ${h}>${esc(v)}</textarea></label>`;
- return`<label class="f">${f.t}${r}<input type="${f.type==='number'?'text':f.type}" ${f.type==='number'?'inputmode="decimal"':''} value="${esc(v)}" ${h}></label>`}
+ if(f.type==='select')return`<label class="f"><span>${f.t}${r}</span><select ${h}>${f.opt.map(o=>`<option ${o===v?'selected':''} value="${esc(o)}">${o||'— выбрать —'}</option>`).join('')}</select></label>`;
+ if(f.type==='textarea')return`<label class="f w"><span>${f.t}${r}</span><textarea ${h}>${esc(v)}</textarea></label>`;
+ return`<label class="f"><span>${f.t}${r}</span><input type="${f.type==='number'?'text':f.type}" ${f.type==='number'?'inputmode="decimal"':''} value="${esc(v)}" ${h}></label>`}
 function checkHTML(c,on,fn){const k=critOf(c);return`<label class="chk ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="${fn}"><span>${c.t}${k?`<span class="tag ${k}">${k==='no'?'обязательно':'нужно дождаться'}</span>`:''}</span></label>`}
 
 function wizard(){const s=STAGES[D.step],reach=maxReach();
