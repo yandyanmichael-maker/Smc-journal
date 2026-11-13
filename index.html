@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#000000">
 <title>Trading Journal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -58,12 +58,67 @@ img.shot{max-width:100%;max-height:320px;border-radius:6px;border:1px solid var(
 .cd{min-height:64px;background:var(--bg);border:1px solid var(--b);border-radius:6px;padding:4px 6px;cursor:pointer;font-size:12px;display:flex;flex-direction:column;justify-content:space-between}
 .cd.e{opacity:.3;cursor:default}.cd.w{background:#122a24;border-color:#2b6b58}.cd.l{background:#2c161c;border-color:#6e2f3a}.cd.t{outline:2px solid var(--a)}.cd.sel{outline:2px solid #fff}
 .cd b{font-size:13px}.cd small{color:var(--m);font-size:10px}@media(max-width:600px){.cd{min-height:48px;font-size:10px;padding:3px}.cd b{font-size:11px}}
+
+/* ===== v3 minimal social-style theme ===== */
+:root{--bg:#000;--p:#0f0f10;--p2:#18181a;--b:#232326;--t:#f2f2f2;--m:#8e8e93;--a:#ff2d75;--a2:#7b61ff;--g:#34d399;--r:#ff5c7a;--y:#fbbf24;--grad:linear-gradient(135deg,#ff2d75,#7b61ff)}
+body{background:var(--bg)!important;font:15px/1.5 Inter,-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+header{background:rgba(0,0,0,.8)!important;border-bottom:1px solid var(--b);padding:12px 20px;gap:16px}
+header h1{font-size:19px;font-weight:700;letter-spacing:-.02em}header h1 b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{gap:2px}nav button{background:transparent;border:none;color:var(--m);border-radius:999px;padding:8px 14px;font-weight:500}
+nav button:hover{color:var(--t);background:var(--p2)}nav button.on{background:var(--t)!important;color:#000!important}
+nav button .ic{margin-right:6px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1240px;margin:0 auto;padding:20px}
+main{max-width:none;padding:0;margin:0}
+.card{background:var(--p);border:1px solid var(--b);border-radius:20px;box-shadow:none;padding:20px}
+.card h2{font-size:20px;letter-spacing:-.02em}.card h3{font-size:12px;letter-spacing:.06em}
+.btn{background:var(--p2);border:1px solid var(--b);border-radius:999px;padding:9px 16px;font-weight:500}
+.btn.pri,.btn.g{background:var(--grad);border:none;color:#fff}.btn.r{border-radius:999px}
+.bigbtn{border-radius:16px!important}
+input,select,textarea{background:var(--p2);border:1px solid transparent;border-radius:12px;padding:11px 12px}
+input:focus,select:focus,textarea:focus{border-color:var(--a2);background:#1d1d20}
+.chk{background:var(--p2);border:1px solid transparent;border-radius:14px;padding:12px 14px}
+.chk.on{background:#1e1430;border-color:#3b2a66}.chk input{accent-color:#ff2d75}
+.kpi{background:var(--p2);border:none;border-radius:16px;padding:14px}.kpi b{font-size:20px;letter-spacing:-.02em}
+.steps button{background:var(--p2);border:none;padding:7px 13px}.steps button.cur{background:var(--t);color:#000}.steps button.ok{color:var(--g)}
+.prog{height:4px;background:var(--p2)}.prog i{background:var(--grad)!important}
+.verdict{border-radius:20px}
+.cd{background:var(--p2);border:none;border-radius:12px}.cd.w{background:#0f2a20}.cd.l{background:#2e1119}.cd.t{outline:2px solid var(--a2)}
+table th{font-size:12px;text-transform:uppercase;letter-spacing:.05em}tr.rw:hover{background:var(--p2)}
+.modal .card{border-radius:24px}
+.toast{border-radius:999px;background:#fff;color:#000;font-weight:500}
+/* quick panel */
+#quick{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:12px}
+.qbtn{width:100%;padding:14px;border-radius:16px;border:none;background:var(--grad);color:#fff;font:600 15px Inter,sans-serif;cursor:pointer}
+.qcard{background:var(--p);border:1px solid var(--b);border-radius:20px;padding:16px}
+.qcard h4{margin:0 0 10px;font-size:12px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.qrow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--b);font-size:14px;cursor:pointer}
+.qrow:first-of-type{border-top:none}.qrow:hover{color:#fff}.qrow small{color:var(--m)}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qgrid button{background:var(--p2);border:none;color:var(--t);border-radius:14px;padding:12px 8px;font:500 13px Inter,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.qgrid button span{font-size:18px}.qgrid button:hover{background:#222226}
+.qbig{font-size:26px;font-weight:700;letter-spacing:-.03em}
+#qfab,#qclose{display:none}
+@media(max-width:1000px){
+ .layout{grid-template-columns:minmax(0,1fr);padding:12px 12px 90px}
+ .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+ #quick{position:fixed;top:0;right:0;bottom:0;width:86%;max-width:340px;background:var(--bg);border-left:1px solid var(--b);padding:16px;overflow:auto;z-index:40;transform:translateX(105%);transition:transform .25s}
+ #quick.open{transform:none}
+ #qfab{display:flex;margin-left:auto;width:38px;height:38px;border-radius:999px;border:none;background:var(--grad);color:#fff;font-size:18px;align-items:center;justify-content:center;cursor:pointer}
+ #qclose{display:block;align-self:flex-end;background:var(--p2);border:none;color:var(--t);border-radius:999px;width:34px;height:34px;font-size:16px}
+ #qback{position:fixed;inset:0;background:#000a;z-index:39;display:none}#qback.open{display:block}
+ header{padding:10px 14px;backdrop-filter:none!important;background:#000!important}
+ nav{position:fixed;bottom:0;left:0;right:0;margin:0;background:rgba(0,0,0,.92);backdrop-filter:blur(14px);border-top:1px solid var(--b);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30}
+ nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;padding:6px 2px;border-radius:12px}
+ nav button .ic{margin:0;font-size:20px}nav button.on{background:transparent!important;color:#fff!important}
+ nav button.on .ic{transform:scale(1.1)}
+ .card{padding:16px;border-radius:18px}
+}
 </style>
 </head>
 <body>
 <header><h1>Trading <b>Journal</b></h1>
-<nav id="nav"></nav></header>
-<main id="app"></main>
+<nav id="nav"></nav><button id="qfab" onclick="toggleQ(1)" aria-label="Быстрый доступ">⚡</button></header>
+<div class="layout"><main id="app"></main><aside id="quick"></aside></div><div id="qback" onclick="toggleQ(0)"></div>
 <div id="modal"></div>
 <script>
 // ---------- storage ----------
@@ -77,7 +132,7 @@ let TAB=LS.get('smc_tab','wizard');
 const TF=['','1m','3m','5m','15m','30m','1H','4H','1D','1W'];
 
 function newDraft(){const n=new Date();return{id:null,step:0,f:{date:n.toISOString().slice(0,10),time:n.toTimeString().slice(0,5),pv:'1',fees:'0'},c:{},fc:{},img:''}}
-const saveDraft=()=>LS.set('smc_draft',D);
+const saveDraft=()=>{LS.set('smc_draft',D);clearTimeout(window._qt);window._qt=setTimeout(()=>{try{renderQuick()}catch(e){}},300)};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isFinite(x)?x:NaN};
 const usd=(v,sign)=>isFinite(v)?(v<0?'-':(sign&&v>0?'+':''))+'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
@@ -200,10 +255,28 @@ function decide(d=D){
 const ST_LBL={APPROVED:'TRADE APPROVED',WAIT:'WAIT',NO:'NO TRADE'};
 
 // ---------- rendering ----------
-function renderNav(){document.getElementById('nav').innerHTML=[['wizard','Проверка'],['hist','История ('+HIST.length+')'],['stats','Календарь и статистика'],['set','Настройки']]
- .map(([k,t])=>`<button class="${TAB===k?'on':''}" onclick="go('${k}')">${t}</button>`).join('')}
+function renderNav(){document.getElementById('nav').innerHTML=[['wizard','✓','Проверка'],['hist','☰','История'],['stats','↗','Статистика'],['set','⚙','Настройки']]
+ .map(([k,i,t])=>`<button class="${TAB===k||(TAB==='cal'&&k==='stats')?'on':''}" onclick="go('${k}')"><span class="ic">${i}</span>${t}</button>`).join('')}
+function toggleQ(o){document.getElementById('quick').classList.toggle('open',!!o);document.getElementById('qback').classList.toggle('open',!!o)}
+function draftUsed(){return !!(D.f.symbol||D.f.dir||Object.values(D.c).some(Boolean))}
+function newCheck(){toggleQ(0);if(draftUsed())confirmBox('Начать новую проверку? Текущий черновик будет удалён.',()=>{D=newDraft();saveDraft();go('wizard')});else{D=newDraft();saveDraft();go('wizard')}}
+function renderQuick(){const q=document.getElementById('quick');if(!q)return;
+ const closed=HIST.filter(h=>h.post&&h.post.pnl!==''&&h.post.pnl!==undefined&&isFinite(num(h.post.pnl)));
+ const today=new Date().toISOString().slice(0,10),wk=new Date(Date.now()-6*864e5).toISOString().slice(0,10);
+ const sum=l=>l.reduce((a,h)=>a+num(h.post.pnl),0),tl=closed.filter(h=>pnlDate(h)===today),wl=closed.filter(h=>pnlDate(h)>=wk);
+ const tot=sum(closed),sg=v=>v>0?'pos':v<0?'neg':'';const open=HIST.filter(h=>h.status==='APPROVED'&&!(h.post&&h.post.pnl!==''&&h.post.pnl!==undefined));
+ q.innerHTML=`<button id="qclose" onclick="toggleQ(0)">✕</button>
+ <button class="qbtn" onclick="newCheck()">＋ Новая проверка</button>
+ ${draftUsed()?`<div class="qcard" style="cursor:pointer" onclick="toggleQ(0);go('wizard')"><h4>Черновик</h4><div style="font-weight:600">${esc(D.f.symbol||'Без названия')} ${esc(D.f.dir||'')}</div><small class="muted">Этап ${D.step+1} из ${STAGES.length} · продолжить →</small></div>`:''}
+ <div class="qcard"><h4>Сегодня</h4><div class="qbig ${sg(sum(tl))}">${usd(sum(tl),1)}</div><small class="muted">${tl.length} сделок · за 7 дней <span class="${sg(sum(wl))}">${usd(sum(wl),1)}</span></small>
+ <div style="margin-top:10px" class="muted">Всего: <b class="${sg(tot)}">${usd(tot,1)}</b></div></div>
+ ${open.length?`<div class="qcard"><h4>Ждут результата · ${open.length}</h4>${open.slice(0,4).map(h=>`<div class="qrow" onclick="toggleQ(0);openRec('${h.id}')"><span>${esc(h.f.symbol)} <small>${esc(h.f.dir)}</small></span><small>заполнить →</small></div>`).join('')}</div>`:''}
+ <div class="qcard"><h4>Последние сделки</h4>${HIST.length?HIST.slice(0,4).map(h=>{const p=h.post||{},v=num(p.pnl);return`<div class="qrow" onclick="toggleQ(0);openRec('${h.id}')"><span>${esc(h.f.symbol)} <small>${esc(h.f.dir)}</small></span>${isFinite(v)?`<b class="${sg(v)}">${usd(v,1)}</b>`:`<span class="pill p-${h.status}">${h.status==='APPROVED'?'OK':h.status}</span>`}</div>`}).join(''):'<small class="muted">Пока пусто</small>'}</div>
+ <div class="qgrid"><button onclick="toggleQ(0);go('hist')"><span>☰</span>История</button><button onclick="toggleQ(0);go('stats')"><span>↗</span>Статистика</button>
+ <button onclick="toggleQ(0);go('set');setTimeout(()=>exp('json'),50)"><span>⤓</span>Экспорт</button><button onclick="toggleQ(0);go('set')"><span>⚙</span>Правила</button></div>
+ <div class="qcard"><h4>Мои правила</h4><div class="qrow"><span>Мин. RR</span><b>${SET.minRR}</b></div><div class="qrow"><span>Макс. риск</span><b>${SET.maxRisk}%</b></div><div class="qrow"><span>Sweep обязателен</span><b>${SET.requireSweep?'Да':'Нет'}</b></div></div>`}
 function go(t){TAB=t;LS.set('smc_tab',t);render();scrollTo(0,0)}
-function render(){renderNav();const a=document.getElementById('app');
+function render(){renderNav();renderQuick();const a=document.getElementById('app');
  a.innerHTML=TAB==='wizard'?wizard():TAB==='hist'?hist():TAB==='stats'?cal()+stats():TAB==='cal'?cal()+stats():settings();
  if(TAB==='wizard')refresh()}
 
