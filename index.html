@@ -45,7 +45,7 @@ ul.iss{margin:6px 0;padding-left:18px}ul.iss li{margin:3px 0}
 .bigbtn{width:100%;font-size:17px;padding:16px;font-weight:700;margin-top:10px}
 table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--b);text-align:left}th{color:var(--m);font-weight:500}
 tr.rw{cursor:pointer}tr.rw:hover{background:var(--p2)}
-.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.p-APPROVED{background:#123129;color:var(--g)}.p-WAIT{background:#2e2716;color:var(--y)}.p-NO{background:#33181f;color:var(--r)}
+.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.p-APPROVED{background:#123129;color:var(--g)}.p-WAIT{background:#2e2716;color:var(--y)}.p-NO{background:#33181f;color:var(--r)}.p-TRADE{background:#1e1430;color:#c4b5fd}
 .pos{color:var(--g)}.neg{color:var(--r)}
 img.shot{max-width:100%;max-height:320px;border-radius:6px;border:1px solid var(--b);margin-top:6px;display:block}
 .modal{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-start;justify-content:center;padding:20px 10px;overflow:auto;z-index:20}
@@ -85,7 +85,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--a2);background:#1d1d2
 .cd{background:var(--p2);border:none;border-radius:12px}.cd.w{background:#0f2a20}.cd.l{background:#2e1119}.cd.t{outline:2px solid var(--a2)}
 table th{font-size:12px;text-transform:uppercase;letter-spacing:.05em}tr.rw:hover{background:var(--p2)}
 .modal .card{border-radius:24px}
-.toast{border-radius:999px;background:#fff;color:#000;font-weight:500}
+.toast{border-radius:16px;background:#fff;color:#000;font-weight:500;max-width:90vw;width:max-content;text-align:center;bottom:calc(84px + env(safe-area-inset-bottom))}
 /* quick panel */
 #quick{position:sticky;top:76px;align-self:start;display:flex;flex-direction:column;gap:12px}
 .qbtn{width:100%;padding:14px;border-radius:16px;border:none;background:var(--grad);color:#fff;font:600 15px Inter,sans-serif;cursor:pointer}
@@ -252,10 +252,10 @@ function decide(d=D){
   if(isFinite(k.netRR)&&k.netRR<SET.minRR)add('no',`RR с учётом издержек ${fx(k.netRR)} < минимального ${SET.minRR}`);}
  const st=iss.some(x=>x.lvl==='no')?'NO':iss.length?'WAIT':'APPROVED';
  return{st,iss,met,total,calc:k}}
-const ST_LBL={APPROVED:'TRADE APPROVED',WAIT:'WAIT',NO:'NO TRADE'};
+const ST_LBL={APPROVED:'TRADE APPROVED',WAIT:'WAIT',NO:'NO TRADE',TRADE:'Сделка'};
 
 // ---------- rendering ----------
-function renderNav(){document.getElementById('nav').innerHTML=[['wizard','✓','Проверка'],['hist','☰','История'],['stats','↗','Статистика'],['set','⚙','Настройки']]
+function renderNav(){document.getElementById('nav').innerHTML=[['wizard','＋','Новая сделка'],['hist','☰','История'],['stats','↗','Статистика'],['set','⚙','Настройки']]
  .map(([k,i,t])=>`<button class="${TAB===k||(TAB==='cal'&&k==='stats')?'on':''}" onclick="go('${k}')"><span class="ic">${i}</span>${t}</button>`).join('')}
 function toggleQ(o){document.getElementById('quick').classList.toggle('open',!!o);document.getElementById('qback').classList.toggle('open',!!o)}
 function draftUsed(){return !!(D.f.symbol||D.f.dir||Object.values(D.c).some(Boolean))}
@@ -264,17 +264,16 @@ function renderQuick(){const q=document.getElementById('quick');if(!q)return;
  const closed=HIST.filter(h=>h.post&&h.post.pnl!==''&&h.post.pnl!==undefined&&isFinite(num(h.post.pnl)));
  const today=new Date().toISOString().slice(0,10),wk=new Date(Date.now()-6*864e5).toISOString().slice(0,10);
  const sum=l=>l.reduce((a,h)=>a+num(h.post.pnl),0),tl=closed.filter(h=>pnlDate(h)===today),wl=closed.filter(h=>pnlDate(h)>=wk);
- const tot=sum(closed),sg=v=>v>0?'pos':v<0?'neg':'';const open=HIST.filter(h=>h.status==='APPROVED'&&!(h.post&&h.post.pnl!==''&&h.post.pnl!==undefined));
+ const tot=sum(closed),sg=v=>v>0?'pos':v<0?'neg':'';const open=HIST.filter(h=>h.status!=='WAIT'&&h.status!=='NO'&&!(h.post&&h.post.pnl!==''&&h.post.pnl!==undefined));
  q.innerHTML=`<button id="qclose" onclick="toggleQ(0)">✕</button>
  <button class="qbtn" onclick="newCheck()">＋ Новая проверка</button>
- ${draftUsed()?`<div class="qcard" style="cursor:pointer" onclick="toggleQ(0);go('wizard')"><h4>Черновик</h4><div style="font-weight:600">${esc(D.f.symbol||'Без названия')} ${esc(D.f.dir||'')}</div><small class="muted">Этап ${D.step+1} из ${STAGES.length} · продолжить →</small></div>`:''}
+ ${draftUsed()?`<div class="qcard" style="cursor:pointer" onclick="toggleQ(0);go('wizard')"><h4>Черновик</h4><div style="font-weight:600">${esc(D.f.symbol||'Без названия')} ${esc(D.f.dir||'')}</div><small class="muted">Незаконченная запись · продолжить →</small></div>`:''}
  <div class="qcard"><h4>Сегодня</h4><div class="qbig ${sg(sum(tl))}">${usd(sum(tl),1)}</div><small class="muted">${tl.length} сделок · за 7 дней <span class="${sg(sum(wl))}">${usd(sum(wl),1)}</span></small>
  <div style="margin-top:10px" class="muted">Всего: <b class="${sg(tot)}">${usd(tot,1)}</b></div></div>
  ${open.length?`<div class="qcard"><h4>Ждут результата · ${open.length}</h4>${open.slice(0,4).map(h=>`<div class="qrow" onclick="toggleQ(0);openRec('${h.id}')"><span>${esc(h.f.symbol)} <small>${esc(h.f.dir)}</small></span><small>заполнить →</small></div>`).join('')}</div>`:''}
- <div class="qcard"><h4>Последние сделки</h4>${HIST.length?HIST.slice(0,4).map(h=>{const p=h.post||{},v=num(p.pnl);return`<div class="qrow" onclick="toggleQ(0);openRec('${h.id}')"><span>${esc(h.f.symbol)} <small>${esc(h.f.dir)}</small></span>${isFinite(v)?`<b class="${sg(v)}">${usd(v,1)}</b>`:`<span class="pill p-${h.status}">${h.status==='APPROVED'?'OK':h.status}</span>`}</div>`}).join(''):'<small class="muted">Пока пусто</small>'}</div>
+ <div class="qcard"><h4>Последние сделки</h4>${HIST.length?HIST.slice(0,4).map(h=>{const p=h.post||{},v=num(p.pnl);return`<div class="qrow" onclick="toggleQ(0);openRec('${h.id}')"><span>${esc(h.f.symbol)} <small>${esc(h.f.dir)}</small></span>${isFinite(v)?`<b class="${sg(v)}">${usd(v,1)}</b>`:`<span class="pill p-${h.status}">${ST_LBL[h.status]||h.status}</span>`}</div>`}).join(''):'<small class="muted">Пока пусто</small>'}</div>
  <div class="qgrid"><button onclick="toggleQ(0);go('hist')"><span>☰</span>История</button><button onclick="toggleQ(0);go('stats')"><span>↗</span>Статистика</button>
- <button onclick="toggleQ(0);go('set');setTimeout(()=>exp('json'),50)"><span>⤓</span>Экспорт</button><button onclick="toggleQ(0);go('set')"><span>⚙</span>Правила</button></div>
- <div class="qcard"><h4>Мои правила</h4><div class="qrow"><span>Мин. RR</span><b>${SET.minRR}</b></div><div class="qrow"><span>Макс. риск</span><b>${SET.maxRisk}%</b></div><div class="qrow"><span>Sweep обязателен</span><b>${SET.requireSweep?'Да':'Нет'}</b></div></div>`}
+ <button onclick="toggleQ(0);go('set');setTimeout(()=>exp('json'),50)"><span>⤓</span>Экспорт</button><button onclick="toggleQ(0);go('set')"><span>⚙</span>Настройки</button></div>`}
 function go(t){TAB=t;LS.set('smc_tab',t);render();scrollTo(0,0)}
 function render(){renderNav();renderQuick();const a=document.getElementById('app');
  a.innerHTML=TAB==='wizard'?wizard():TAB==='hist'?hist():TAB==='stats'?cal()+stats():TAB==='cal'?cal()+stats():settings();
@@ -377,7 +376,7 @@ function openRec(id){const h=HIST.find(x=>x.id===id);if(!h)return;const p=h.post
  const chk=ALLC.map(c=>`<div class="${h.c[c.id]?'pos':'muted'}">${h.c[c.id]?'✓':'✗'} ${esc(c.t)}</div>`).join('');
  document.getElementById('modal').innerHTML=`<div class="modal" onclick="if(event.target===this)closeM()"><div class="card">
  <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2>${esc(h.f.symbol)} · ${esc(h.f.dir)} · <span class="pill p-${h.status}">${ST_LBL[h.status]}</span></h2><button class="btn" onclick="closeM()">✕</button></div>
- <div class="sub">${esc(h.f.date)} ${esc(h.f.time)} · ${esc(h.f.session)} · ${esc(h.f.zType)} · условий ${h.met}/${h.total}</div>
+ <div class="sub">${esc(h.f.date)} ${esc(h.f.time)} · ${esc(h.f.session)} ${h.total?` · условий ${h.met}/${h.total}`:''}</div>
  <div class="kpis"><div class="kpi"><small>Entry</small><b>${esc(h.f.entry)}</b></div><div class="kpi"><small>Stop Loss</small><b>${esc(h.f.sl)}</b></div>
  <div class="kpi"><small>Take Profit</small><b>${esc(h.f.tp)}</b></div><div class="kpi"><small>RR</small><b>${fx(h.rr)}</b></div><div class="kpi"><small>Плановый риск</small><b>${usd(h.riskMoney)}</b></div><div class="kpi"><small>Размер</small><b>${fx(h.size,4)}</b></div></div>
  <h3>Причина входа</h3><div>${esc(h.f.trig||'—')}</div><div class="muted">${esc(h.f.zWhy||'')}</div>
@@ -424,18 +423,17 @@ function equity(closed){
  <text x="${P}" y="${H-6}" fill="var(--m)" font-size="11">Старт</text><text x="${W-8}" y="${H-6}" fill="var(--m)" font-size="11" text-anchor="end">Сделка ${pts.length-1}</text>
  </svg></div>`}
 function stats(){const closed=HIST.filter(h=>h.post&&h.post.pnl!==undefined&&h.post.pnl!==''&&isFinite(num(h.post.pnl)));
- const clean=closed.filter(h=>h.status==='APPROVED'&&h.post.plan==='Да'),dirty=closed.filter(h=>!(h.status==='APPROVED'&&h.post.plan==='Да'));
+ const clean=closed.filter(h=>h.post.plan==='Да'),dirty=closed.filter(h=>h.post.plan!=='Да');
  const g=grp(closed),k=(t,v,c='')=>`<div class="kpi"><small>${t}</small><b class="${c}">${v}</b></div>`,sg=v=>v>0?'pos':v<0?'neg':'';
  const by=key=>{const m={};closed.forEach(h=>{const x=h.f[key]||'—';(m[x]=m[x]||[]).push(h)});
   return`<table><tr><th></th><th>Сделок</th><th>Win Rate</th><th>Результат</th><th>Ср. R</th></tr>${Object.entries(m).map(([n,l])=>{const s=grp(l);return`<tr><td>${esc(n)}</td><td>${s.n}</td><td>${fx(s.wr,0)}%</td><td class="${sg(s.tot)}">${usd(s.tot,1)}</td><td>${fx(s.exp)}</td></tr>`}).join('')}</table>`};
  const cmp=(t,s)=>`<div class="card"><h3 style="margin-top:0">${t}</h3><div class="kpis">${k('Сделок',s.n)}${k('Win Rate',fx(s.wr,0)+'%')}${k('Результат',usd(s.tot,1),sg(s.tot))}${k('Матожидание, R',fx(s.exp),sg(s.exp))}${k('Profit Factor',fx(s.pf))}</div></div>`;
- return`<div class="card"><h2>Статистика</h2><div class="sub">Учитываются закрытые сделки (с заполненным финансовым результатом): ${closed.length} из ${HIST.length} записей. Одобрено системой: ${HIST.filter(h=>h.status==='APPROVED').length}, WAIT: ${HIST.filter(h=>h.status==='WAIT').length}, NO TRADE: ${HIST.filter(h=>h.status==='NO').length}.</div>
- <div class="kpis">${k('Сделок',g.n)}${k('Прибыльных',g.w,'pos')}${k('Убыточных',g.l,'neg')}${k('Win Rate',fx(g.wr,1)+'%')}${k('Средний RR (план)',fx(g.rr))}
+ return`<div class="card"><h2>Статистика</h2><div class="sub">Учитываются закрытые сделки (с заполненным финансовым результатом): ${closed.length} из ${HIST.length}.</div>
+ <div class="kpis">${k('Сделок',g.n)}${k('Прибыльных',g.w,'pos')}${k('Убыточных',g.l,'neg')}${k('Win Rate',fx(g.wr,1)+'%')}${k('Средний RR',fx(g.rr))}
  ${k('Общий результат',usd(g.tot,1),sg(g.tot))}${k('Profit Factor',fx(g.pf))}${k('Средняя прибыль',usd(g.aw),'pos')}${k('Средний убыток',usd(-g.al),'neg')}
- ${k('Все правила соблюдены',clean.length,'pos')}${k('С нарушениями',dirty.length,'neg')}</div></div>${equity(closed)}
- <div class="two">${cmp('✓ Алгоритм выполнен полностью',grp(clean))}${cmp('✗ Алгоритм нарушен',grp(dirty))}</div>
- <div class="sub">«Выполнен полностью» = система выдала TRADE APPROVED и вы отметили, что соблюдали план. Положительное матожидание в R по этой группе на достаточной выборке (30+ сделок) — признак того, что модель работает.</div>
- ${closed.length?`<div class="card"><h3 style="margin-top:0">По инструментам</h3>${by('symbol')}<h3>По сессиям</h3>${by('session')}<h3>По типам сетапов</h3>${by('zType')}</div>`:''}`}
+ ${k('По плану',clean.length,'pos')}${k('Вне плана',dirty.length,'neg')}</div></div>${equity(closed)}
+ <div class="two">${cmp('✓ Сделки по плану',grp(clean))}${cmp('✗ Сделки вне плана',grp(dirty))}</div>
+ ${closed.length?`<div class="card"><h3 style="margin-top:0">По инструментам</h3>${by('symbol')}<h3>По сессиям</h3>${by('session')}<h3>По рынкам</h3>${by('market')}</div>`:''}`}
 
 // ---------- settings / io ----------
 function settings(){return`<div class="card"><h2>Правила торговой модели</h2><div class="sub">Все правила прозрачны и настраиваемы.</div><div class="grid">
@@ -486,6 +484,27 @@ function cal(){const n=new Date();if(!CM)CM=[n.getFullYear(),n.getMonth()];const
  <div class="cg">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="h">${d}</div>`).join('')}${cells}</div>
  <div class="sub" style="margin-top:8px">Учитываются сделки с заполненным финансовым результатом. День = дата выхода (если указана), иначе дата сделки.</div></div>
  ${CSEL?`<div class="card"><h3 style="margin-top:0">${CSEL}</h3>${sel.length?`<table>${sel.map(h=>`<tr class="rw" onclick="openRec('${h.id}')"><td>${esc(h.f.symbol)}</td><td>${esc(h.f.dir)}</td><td>${esc(h.f.zType)}</td><td class="${sg(num(h.post.pnl))}">${usd(num(h.post.pnl),1)}</td><td>${fx(rOf(h))}R</td><td>${h.post.plan==='Да'?'✓ план':h.post.plan==='Нет'?'✗ нарушение':''}</td></tr>`).join('')}</table>`:'<div class="muted">Закрытых сделок нет.</div>'}</div>`:''}`}
+// ===== v4: single-form trade entry =====
+const TRADE_FIELDS=[...STAGES[0].fields.filter(f=>f.id!=='img'),F('entry','Цена входа','number',false),F('sl','Stop Loss','number',false),F('tp','Take Profit','number',false),F('riskUsd','Риск на сделку, $','number',false),F('note','Комментарий','textarea',false),F('img','Скриншот графика','image',false)];
+function tradeMissing(d=D){return TRADE_FIELDS.filter(f=>f.req&&!String(d.f[f.id]??'').trim())}
+function wizard(){const rr=tradeRR(D);
+ return`<div class="card"><h2>${D.id?'Редактирование сделки':'Новая сделка'}</h2><div class="sub">Заполните информацию о сделке. Поля со звёздочкой обязательны.</div>
+ <div class="grid">${TRADE_FIELDS.map(f=>fieldHTML(f,D)).join('')}</div>
+ <div id="rrbox" class="sub" style="margin-top:10px">${rr}</div>
+ <div class="navb"><button class="btn r" onclick="resetDraft()">Очистить</button><button class="btn pri" id="nextb" onclick="saveTrade()">${D.id?'Сохранить изменения':'Сохранить сделку'}</button></div>
+ <div class="sub" style="margin-top:8px">Черновик сохраняется автоматически.</div></div>`}
+function tradeRR(d){const e=num(d.f.entry),sl=num(d.f.sl),tp=num(d.f.tp);if(![e,sl,tp].every(isFinite)||e===sl)return'';return'RR: <b>'+fx(Math.abs(tp-e)/Math.abs(e-sl))+'</b>'+(isFinite(num(d.f.riskUsd))?' · потенциальная прибыль <b class="pos">'+usd(num(d.f.riskUsd)*Math.abs(tp-e)/Math.abs(e-sl))+'</b>':'')}
+function refresh(){const miss=tradeMissing();document.querySelectorAll('[data-f]').forEach(el=>el.classList.toggle('miss',miss.some(m=>m.id===el.dataset.f)));
+ const nb=document.getElementById('nextb');if(nb)nb.classList.toggle('dis',miss.length>0);const rb=document.getElementById('rrbox');if(rb)rb.innerHTML=tradeRR(D)}
+function saveTrade(){const m=tradeMissing();if(m.length){toast('Заполните: '+m.map(x=>x.t).join(', '));refresh();return}
+ const e=num(D.f.entry),sl=num(D.f.sl),tp=num(D.f.tp),rec=JSON.parse(JSON.stringify(D)),old=D.id&&HIST.find(h=>h.id===D.id);
+ Object.assign(rec,{status:'TRADE',saved:old?old.saved:new Date().toISOString(),issues:[],rr:[e,sl,tp].every(isFinite)&&e!==sl?Math.abs(tp-e)/Math.abs(e-sl):NaN,riskMoney:num(D.f.riskUsd),size:NaN,post:old?old.post||{}:{}});
+ delete rec.step;delete rec.met;delete rec.total;
+ if(old){HIST[HIST.indexOf(old)]=rec}else{rec.id=Date.now().toString(36);HIST.unshift(rec)}
+ if(!LS.set('smc_hist',HIST))return;D=newDraft();saveDraft();toast('Сделка сохранена. После закрытия заполните результат.');go('hist')}
+function editRec(id){const h=HIST.find(x=>x.id===id);D=JSON.parse(JSON.stringify(h));D.step=0;if(!D.f.riskUsd&&isFinite(h.riskMoney))D.f.riskUsd=String(+h.riskMoney.toFixed(2));saveDraft();document.getElementById('modal').innerHTML='';go('wizard')}
+function settings(){return`<div class="card"><h2>Настройки</h2><div class="sub">Данные хранятся в этом браузере. Делайте резервную копию через экспорт.</div></div>`+ioCard()}
+
 render();
 </script>
 </body>
